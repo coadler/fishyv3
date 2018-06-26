@@ -1,0 +1,39 @@
+syntax = "proto3";
+package fishyv3;
+option go_package = "pb";
+
+message FishRequest {
+
+}
+
+message FishResponse {
+
+}
+
+message UserItem {
+    int32 current = 1;
+    repeated int32 owned = 2;
+}
+
+message UserItems {
+    UserItem bait = 1;
+    UserItem rod = 2;
+    UserItem hook = 3;
+    UserItem vehicle = 4;
+    UserItem bait_box = 5;
+}
+
+message FishInventory {
+    int32 fish = 1;
+    int32 garbage = 2;
+    int32 legendaries = 3;
+    int32 worth = 4;
+}
+
+message BaitInventory {
+    int32 t1 = 1;
+    int32 t2 = 2;
+    int32 t3 = 3;
+    int32 t4 = 4;
+    int32 t5 = 5;
+}

@@ -1,0 +1,196 @@
+syntax = "proto3";
+package fishyv3;
+import "lmao.proto";
+option go_package = "pb";
+
+service Fishy {
+    rpc Fishy(FishRequest) returns (FishResponse) {}
+
+    rpc Inventory(InventoryRequest) returns (InventoryResponse) {}
+
+    rpc GetLocation(GetLocationRequest) returns (GetLocationResponse) {}
+
+    rpc SetLocation(SetLocationRequest) returns (SetLocationResponse) {}
+
+    rpc BuyItem (BuyItemRequest) returns (BuyItemResponse) {}
+
+    rpc Blacklist (BlacklistRequest) returns (BlacklistResponse) {}
+
+    rpc Unblacklist (UnblacklistRequest) returns (UnblacklistResponse) {}
+
+    rpc StartGatherBait (StartGatherBaitRequest) returns (StartGatherBaitResponse) {}
+
+    rpc CheckGatherBait (CheckGatherBaitRequest) returns (CheckGatherBaitResponse) {}
+
+    rpc Leaderboard (LeaderboardRequest) returns (LeaderboardResponse) {}
+
+    rpc CheckTime(CheckTimeRequest) returns (CheckTimeResponse) {}
+
+    rpc GetBaitInventory (GetBaitInventoryRequest) returns (GetBaitInventoryResponse) {}
+
+    rpc BuyBait (BuyBaitRequest) returns (BuyBaitResponse) {}
+
+    rpc GetBaitTier (GetBaitTierRequest) returns (GetBaitTierResponse) {}
+
+    rpc SetBaitTier (SetBaitTierRequest) returns (SetBaitTierResponse) {}
+
+    rpc SellFish(SellFishRequest) returns (SellFishResponse) {}
+}
+
+enum FishCategory {
+    FISH = 0;
+    LEGENDARY = 1;
+    GARBAGE = 2;
+    ALL = 3;
+}
+
+enum Item {
+    BAIT = 0;
+    ROD = 1;
+    HOOK = 2;
+    VEHICLE = 3;
+    BAITBOX = 4;
+}
+
+enum Location {
+    LAKE = 0;
+    RIVER = 1;
+    OCEAN = 2;
+}
+
+enum BaitTier {
+    T1 = 0;
+    T2 = 1;
+    T3 = 2;
+    T4 = 3;
+    T5 = 4;
+}
+
+message InventoryRequest {
+    string user = 1;
+}
+
+message InventoryResponse {
+    UserItems items = 1;
+    FishInventory fish = 2;
+    int32 max_fish = 3;
+    int32 max_bait = 4;
+    int32 user_tier = 5;
+}
+
+message GetLocationRequest {
+    string user = 1;
+}
+
+message GetLocationResponse {
+    Location location = 1;
+}
+
+message SetLocationRequest {
+    string user = 1;
+    Location location = 2;
+}
+
+message SetLocationResponse {}
+
+message BuyItemRequest {
+    Item item = 1;
+    int32 tier = 2;
+}
+
+message BuyItemResponse {}
+
+message BlacklistRequest {
+    string user = 1;
+}
+
+message BlacklistResponse {}
+
+message UnblacklistRequest {
+    string user = 1;
+}
+
+message UnblacklistResponse {}
+
+message StartGatherBaitRequest {
+    string user = 1;
+}
+
+message StartGatherBaitResponse {}
+
+message CheckGatherBaitRequest {
+    string user = 1;
+}
+
+message CheckGatherBaitResponse {}
+
+message LeaderboardRequest {
+    bool global = 1;
+    int32 page = 2;
+    string user = 3;
+    string guild = 4;
+    string guild_name = 5;
+}
+
+message LeaderboardResponse {
+    repeated LeaderboardUser users = 1;
+}
+
+message LeaderboardUser {
+    string user = 1;
+    int32 score = 2;
+}
+
+message GetBaitInventoryRequest {
+    string user = 1;    
+}
+
+message GetBaitInventoryResponse {
+    int32 max_bait = 1;
+    int32 current_count = 2;
+    BaitInventory bait = 3;
+    int32 current_tier = 4;
+    int32 baitbox_tier = 5;
+}
+
+message BuyBaitRequest {
+    string user = 1;
+    BaitTier tier = 2;
+    int32 amount = 3;
+}
+
+message BuyBaitResponse {
+    int32 new = 1;
+}
+
+message GetBaitTierRequest {
+    string user = 1;
+}
+
+message GetBaitTierResponse {
+    BaitTier tier = 1;
+}
+
+message SetBaitTierRequest {
+    string user = 1;
+    BaitTier tier = 2;
+}
+
+message SetBaitTierResponse {}
+
+message SellFishRequest {
+    string user = 1;
+    FishCategory type = 2;
+}
+
+message SellFishResponse {
+    int32 worth = 1;
+}
+
+message CheckTimeRequest {}
+
+message CheckTimeResponse {
+    string time = 1;
+    bool morning = 2;
+    bool night = 3;
+}
