@@ -4,6 +4,7 @@
 ## Table of Contents
 
 - [fishy.proto](#fishy.proto)
+    - [BaitInventory](#fishyv3.BaitInventory)
     - [BlacklistRequest](#fishyv3.BlacklistRequest)
     - [BlacklistResponse](#fishyv3.BlacklistResponse)
     - [BuyBaitRequest](#fishyv3.BuyBaitRequest)
@@ -14,6 +15,9 @@
     - [CheckGatherBaitResponse](#fishyv3.CheckGatherBaitResponse)
     - [CheckTimeRequest](#fishyv3.CheckTimeRequest)
     - [CheckTimeResponse](#fishyv3.CheckTimeResponse)
+    - [FishInventory](#fishyv3.FishInventory)
+    - [FishRequest](#fishyv3.FishRequest)
+    - [FishResponse](#fishyv3.FishResponse)
     - [GetBaitInventoryRequest](#fishyv3.GetBaitInventoryRequest)
     - [GetBaitInventoryResponse](#fishyv3.GetBaitInventoryResponse)
     - [GetBaitTierRequest](#fishyv3.GetBaitTierRequest)
@@ -35,6 +39,8 @@
     - [StartGatherBaitResponse](#fishyv3.StartGatherBaitResponse)
     - [UnblacklistRequest](#fishyv3.UnblacklistRequest)
     - [UnblacklistResponse](#fishyv3.UnblacklistResponse)
+    - [UserItem](#fishyv3.UserItem)
+    - [UserItems](#fishyv3.UserItems)
   
     - [BaitTier](#fishyv3.BaitTier)
     - [FishCategory](#fishyv3.FishCategory)
@@ -45,18 +51,6 @@
     - [Fishy](#fishyv3.Fishy)
   
 
-- [lmao.proto](#lmao.proto)
-    - [BaitInventory](#fishyv3.BaitInventory)
-    - [FishInventory](#fishyv3.FishInventory)
-    - [FishRequest](#fishyv3.FishRequest)
-    - [FishResponse](#fishyv3.FishResponse)
-    - [UserItem](#fishyv3.UserItem)
-    - [UserItems](#fishyv3.UserItems)
-  
-  
-  
-  
-
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -65,6 +59,25 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## fishy.proto
+
+
+
+<a name="fishyv3.BaitInventory"/>
+
+### BaitInventory
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| t1 | [int32](#int32) |  |  |
+| t2 | [int32](#int32) |  |  |
+| t3 | [int32](#int32) |  |  |
+| t4 | [int32](#int32) |  |  |
+| t5 | [int32](#int32) |  |  |
+
+
+
 
 
 
@@ -172,6 +185,11 @@
 
 
 
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| remaining | [int32](#int32) |  | minutes left |
+
+
 
 
 
@@ -197,6 +215,44 @@
 | time | [string](#string) |  |  |
 | morning | [bool](#bool) |  |  |
 | night | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="fishyv3.FishInventory"/>
+
+### FishInventory
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| fish | [int32](#int32) |  |  |
+| garbage | [int32](#int32) |  |  |
+| legendaries | [int32](#int32) |  |  |
+| worth | [int32](#int32) |  |  |
+
+
+
+
+
+
+<a name="fishyv3.FishRequest"/>
+
+### FishRequest
+
+
+
+
+
+
+
+<a name="fishyv3.FishResponse"/>
+
+### FishResponse
+
 
 
 
@@ -513,6 +569,40 @@
 
 
 
+
+<a name="fishyv3.UserItem"/>
+
+### UserItem
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| current | [int32](#int32) |  |  |
+| owned | [int32](#int32) | repeated |  |
+
+
+
+
+
+<a name="fishyv3.UserItems"/>
+
+### UserItems
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| bait | [UserItem](#fishyv3.UserItem) |  |  |
+| rod | [UserItem](#fishyv3.UserItem) |  |  |
+| hook | [UserItem](#fishyv3.UserItem) |  |  |
+| vehicle | [UserItem](#fishyv3.UserItem) |  |  |
+| bait_box | [UserItem](#fishyv3.UserItem) |  |  |
+
+
+
+
+
  
 
 
@@ -600,114 +690,6 @@
 | GetBaitTier | [GetBaitTierRequest](#fishyv3.GetBaitTierRequest) | [GetBaitTierResponse](#fishyv3.GetBaitTierRequest) |  |
 | SetBaitTier | [SetBaitTierRequest](#fishyv3.SetBaitTierRequest) | [SetBaitTierResponse](#fishyv3.SetBaitTierRequest) |  |
 | SellFish | [SellFishRequest](#fishyv3.SellFishRequest) | [SellFishResponse](#fishyv3.SellFishRequest) |  |
-
- 
-
-
-
-<a name="lmao.proto"/>
-<p align="right"><a href="#top">Top</a></p>
-
-## lmao.proto
-
-
-
-<a name="fishyv3.BaitInventory"/>
-
-### BaitInventory
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| t1 | [int32](#int32) |  |  |
-| t2 | [int32](#int32) |  |  |
-| t3 | [int32](#int32) |  |  |
-| t4 | [int32](#int32) |  |  |
-| t5 | [int32](#int32) |  |  |
-
-
-
-
-
-
-<a name="fishyv3.FishInventory"/>
-
-### FishInventory
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| fish | [int32](#int32) |  |  |
-| garbage | [int32](#int32) |  |  |
-| legendaries | [int32](#int32) |  |  |
-| worth | [int32](#int32) |  |  |
-
-
-
-
-
-
-<a name="fishyv3.FishRequest"/>
-
-### FishRequest
-
-
-
-
-
-
-
-<a name="fishyv3.FishResponse"/>
-
-### FishResponse
-
-
-
-
-
-
-
-<a name="fishyv3.UserItem"/>
-
-### UserItem
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| current | [int32](#int32) |  |  |
-| owned | [int32](#int32) | repeated |  |
-
-
-
-
-
-
-<a name="fishyv3.UserItems"/>
-
-### UserItems
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| bait | [UserItem](#fishyv3.UserItem) |  |  |
-| rod | [UserItem](#fishyv3.UserItem) |  |  |
-| hook | [UserItem](#fishyv3.UserItem) |  |  |
-| vehicle | [UserItem](#fishyv3.UserItem) |  |  |
-| bait_box | [UserItem](#fishyv3.UserItem) |  |  |
-
-
-
-
-
- 
-
- 
-
- 
 
  
 
