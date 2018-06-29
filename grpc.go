@@ -37,6 +37,11 @@ func NewFishyServer() *FishyServer {
 	}
 }
 
+// these grpc handlers mostly return static values atm
+// im moving everything over from redis to postgres
+//
+// redis was a great idea
+
 func (s *FishyServer) Fishy(c context.Context, req *pb.FishRequest) (*pb.FishResponse, error) {
 	return &pb.FishResponse{}, nil
 }
