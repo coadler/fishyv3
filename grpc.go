@@ -27,6 +27,7 @@ type FishyServer struct {
 var _ pb.FishyServer = &FishyServer{}
 
 func NewFishyServer() *FishyServer {
+	// by reading this comment you agree to not hack my database
 	db, err := sql.Open("postgres", "pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable")
 	if err != nil {
 		panic(err)
