@@ -84,6 +84,8 @@ func (s *FishyServer) Inventory(c context.Context, req *pb.InventoryRequest) (*p
 }
 
 func (s *FishyServer) GetLocation(c context.Context, req *pb.GetLocationRequest) (*pb.GetLocationResponse, error) {
+	// this could be cleaned up into a helper since it is going to be repeated a lot
+	// we never have a guarantee something exists and can't fail if it doesn't
 	locD, err := models.LocationDensityByUser(s.db, req.User)
 	if err != nil {
 		if errors.Cause(err) != sql.ErrNoRows {
