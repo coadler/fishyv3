@@ -9,10 +9,11 @@ import (
 
 // LocationDensity represents a row from 'public.location_density'.
 type LocationDensity struct {
-	ID    string `json:"id"`    // id
-	Lake  int    `json:"lake"`  // lake
-	River int    `json:"river"` // river
-	Ocean int    `json:"ocean"` // ocean
+	User     string   `json:"user"`     // user
+	Lake     int      `json:"lake"`     // lake
+	River    int      `json:"river"`    // river
+	Ocean    int      `json:"ocean"`    // ocean
+	Location Location `json:"location"` // location
 
 	// xo fields
 	_exists, _deleted bool
@@ -39,14 +40,14 @@ func (ld *LocationDensity) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.location_density (` +
-		`id, lake, river, ocean` +
+		`user, lake, river, ocean, location` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
+		`$1, $2, $3, $4, $5` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, ld.ID, ld.Lake, ld.River, ld.Ocean)
-	err = db.QueryRow(sqlstr, ld.ID, ld.Lake, ld.River, ld.Ocean).Scan(&ld.ID)
+	XOLog(sqlstr, ld.User, ld.Lake, ld.River, ld.Ocean, ld.Location)
+	err = db.QueryRow(sqlstr, ld.User, ld.Lake, ld.River, ld.Ocean, ld.Location).Scan(&ld.User)
 	if err != nil {
 		return err
 	}
@@ -73,14 +74,14 @@ func (ld *LocationDensity) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.location_density SET (` +
-		`lake, river, ocean` +
+		`lake, river, ocean, location` +
 		`) = ( ` +
-		`$1, $2, $3` +
-		`) WHERE id = $4`
+		`$1, $2, $3, $4` +
+		`) WHERE user = $5`
 
 	// run query
-	XOLog(sqlstr, ld.Lake, ld.River, ld.Ocean, ld.ID)
-	_, err = db.Exec(sqlstr, ld.Lake, ld.River, ld.Ocean, ld.ID)
+	XOLog(sqlstr, ld.Lake, ld.River, ld.Ocean, ld.Location, ld.User)
+	_, err = db.Exec(sqlstr, ld.Lake, ld.River, ld.Ocean, ld.Location, ld.User)
 	return err
 }
 
@@ -106,18 +107,18 @@ func (ld *LocationDensity) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.location_density (` +
-		`id, lake, river, ocean` +
+		`user, lake, river, ocean, location` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, lake, river, ocean` +
+		`$1, $2, $3, $4, $5` +
+		`) ON CONFLICT (user) DO UPDATE SET (` +
+		`user, lake, river, ocean, location` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.lake, EXCLUDED.river, EXCLUDED.ocean` +
+		`EXCLUDED.user, EXCLUDED.lake, EXCLUDED.river, EXCLUDED.ocean, EXCLUDED.location` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, ld.ID, ld.Lake, ld.River, ld.Ocean)
-	_, err = db.Exec(sqlstr, ld.ID, ld.Lake, ld.River, ld.Ocean)
+	XOLog(sqlstr, ld.User, ld.Lake, ld.River, ld.Ocean, ld.Location)
+	_, err = db.Exec(sqlstr, ld.User, ld.Lake, ld.River, ld.Ocean, ld.Location)
 	if err != nil {
 		return err
 	}
@@ -143,11 +144,11 @@ func (ld *LocationDensity) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.location_density WHERE id = $1`
+	const sqlstr = `DELETE FROM public.location_density WHERE user = $1`
 
 	// run query
-	XOLog(sqlstr, ld.ID)
-	_, err = db.Exec(sqlstr, ld.ID)
+	XOLog(sqlstr, ld.User)
+	_, err = db.Exec(sqlstr, ld.User)
 	if err != nil {
 		return err
 	}
@@ -158,25 +159,25 @@ func (ld *LocationDensity) Delete(db XODB) error {
 	return nil
 }
 
-// LocationDensityByID retrieves a row from 'public.location_density' as a LocationDensity.
+// LocationDensityByUser retrieves a row from 'public.location_density' as a LocationDensity.
 //
 // Generated from index 'location_density_pkey'.
-func LocationDensityByID(db XODB, id string) (*LocationDensity, error) {
+func LocationDensityByUser(db XODB, user string) (*LocationDensity, error) {
 	var err error
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, lake, river, ocean ` +
+		`user, lake, river, ocean, location ` +
 		`FROM public.location_density ` +
-		`WHERE id = $1`
+		`WHERE user = $1`
 
 	// run query
-	XOLog(sqlstr, id)
+	XOLog(sqlstr, user)
 	ld := LocationDensity{
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&ld.ID, &ld.Lake, &ld.River, &ld.Ocean)
+	err = db.QueryRow(sqlstr, user).Scan(&ld.User, &ld.Lake, &ld.River, &ld.Ocean, &ld.Location)
 	if err != nil {
 		return nil, err
 	}
