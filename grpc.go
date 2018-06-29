@@ -13,7 +13,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ThyLeader/fishyv3/pb"
-	_ "github.com/lib/pq" // fuck
+	// it wants me to put a comment here
+	// i guess if im writing a comment i'll at least
+	// put something useful
+	// import postgres sql driver
+	_ "github.com/lib/pq"
 )
 
 type FishyServer struct {
