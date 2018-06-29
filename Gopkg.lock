@@ -9,6 +9,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/lib/pq"
+  packages = [".","oid"]
+  revision = "90697d60dd844d5ef6ff15135d0203f65d2f53b8"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http/httpguts","http2","http2/hpack","idna","internal/timeseries","trace"]
   revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
@@ -34,6 +46,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "69c1f60bc47384c5523aa2d0d897f9d8e36194105e0b321186b34f50ac5468e5"
+  inputs-digest = "f8d17910cec82fd4583d86f6267a19ca1c9848d554833d972bb89885ac5b5f4b"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -2,14 +2,36 @@ package fishyv3
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/ThyLeader/fishyv3/converter"
+	"github.com/ThyLeader/fishyv3/models"
+	"github.com/pkg/errors"
+
 	"github.com/ThyLeader/fishyv3/pb"
+	_ "github.com/lib/pq" // fuck
 )
 
-type FishyServer struct{}
+type FishyServer struct {
+	db *sql.DB
+}
 
 var _ pb.FishyServer = &FishyServer{}
+
+func NewFishyServer() *FishyServer {
+	db, err := sql.Open("postgres", "pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	return &FishyServer{
+		db,
+	}
+}
 
 func (s *FishyServer) Fishy(c context.Context, req *pb.FishRequest) (*pb.FishResponse, error) {
 	return &pb.FishResponse{}, nil
@@ -52,12 +74,71 @@ func (s *FishyServer) Inventory(c context.Context, req *pb.InventoryRequest) (*p
 }
 
 func (s *FishyServer) GetLocation(c context.Context, req *pb.GetLocationRequest) (*pb.GetLocationResponse, error) {
+	locD, err := models.LocationDensityByUser(s.db, req.User)
+	if err != nil {
+		if errors.Cause(err) != sql.ErrNoRows {
+			return nil, status.Errorf(codes.Internal, errors.Wrap(err, "failed to scan location density by user").Error())
+		}
+
+		tx, err := s.db.BeginTx(c, nil)
+		defer tx.Rollback()
+		if err != nil {
+			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
+		}
+
+		locD = &models.LocationDensity{
+			User:     req.User,
+			Lake:     100,
+			River:    100,
+			Ocean:    100,
+			Location: models.LocationLake,
+		}
+
+		if err := locD.Save(tx); err != nil {
+			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to save location density").Error())
+		}
+
+		if err := tx.Commit(); err != nil {
+			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
+		}
+	}
+
 	return &pb.GetLocationResponse{
-		Location: pb.Location_LAKE,
+		Location: converter.FromDBLocation(locD.Location),
 	}, nil
 }
 
 func (s *FishyServer) SetLocation(c context.Context, req *pb.SetLocationRequest) (*pb.SetLocationResponse, error) {
+	tx, err := s.db.BeginTx(c, nil)
+	defer tx.Rollback()
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
+	}
+
+	locD, err := models.LocationDensityByUser(s.db, req.User)
+	if err != nil {
+		if errors.Cause(err) != sql.ErrNoRows {
+			return nil, status.Errorf(codes.Internal, errors.Wrap(err, "failed to scan location density by user").Error())
+		}
+
+		locD = &models.LocationDensity{
+			User:     req.User,
+			Lake:     100,
+			River:    100,
+			Ocean:    100,
+			Location: models.LocationLake,
+		}
+	}
+
+	locD.Location = converter.FromPBLocation(req.Location)
+	if err := locD.Save(tx); err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to save location density").Error())
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
+	}
+
 	return &pb.SetLocationResponse{}, nil
 }
 

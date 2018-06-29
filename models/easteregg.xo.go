@@ -5,68 +5,14 @@ package models
 
 import (
 	"database/sql"
-	"database/sql/driver"
 	"errors"
 )
-
-// EasterEgg is the 'easter_egg' enum type from schema 'public'.
-type EasterEgg uint16
-
-const (
-	// EasterEggNoRod is the 'no_rod' EasterEgg.
-	EasterEggNoRod = EasterEgg(1)
-)
-
-// String returns the string value of the EasterEgg.
-func (ee EasterEgg) String() string {
-	var enumVal string
-
-	switch ee {
-	case EasterEggNoRod:
-		enumVal = "no_rod"
-	}
-
-	return enumVal
-}
-
-// MarshalText marshals EasterEgg into text.
-func (ee EasterEgg) MarshalText() ([]byte, error) {
-	return []byte(ee.String()), nil
-}
-
-// UnmarshalText unmarshals EasterEgg from text.
-func (ee *EasterEgg) UnmarshalText(text []byte) error {
-	switch string(text) {
-	case "no_rod":
-		*ee = EasterEggNoRod
-
-	default:
-		return errors.New("invalid EasterEgg")
-	}
-
-	return nil
-}
-
-// Value satisfies the sql/driver.Valuer interface for EasterEgg.
-func (ee EasterEgg) Value() (driver.Value, error) {
-	return ee.String(), nil
-}
-
-// Scan satisfies the database/sql.Scanner interface for EasterEgg.
-func (ee *EasterEgg) Scan(src interface{}) error {
-	buf, ok := src.([]byte)
-	if !ok {
-		return errors.New("invalid EasterEgg")
-	}
-
-	return ee.UnmarshalText(buf)
-}
 
 // EasterEgg represents a row from 'public.easter_eggs'.
 type EasterEgg struct {
 	ID        int           `json:"id"`         // id
 	User      string        `json:"user"`       // user
-	EasterEgg EasterEgg     `json:"easter_egg"` // easter_egg
+	EasterEgg EasterEggType `json:"easter_egg"` // easter_egg
 	Amt       sql.NullInt64 `json:"amt"`        // amt
 
 	// xo fields
@@ -242,7 +188,7 @@ func EasterEggByID(db XODB, id int) (*EasterEgg, error) {
 // EasterEggByUserEasterEgg retrieves a row from 'public.easter_eggs' as a EasterEgg.
 //
 // Generated from index 'user_easter_egg'.
-func EasterEggByUserEasterEgg(db XODB, user string, easterEgg EasterEgg) (*EasterEgg, error) {
+func EasterEggByUserEasterEgg(db XODB, user string, easterEgg EasterEggType) (*EasterEgg, error) {
 	var err error
 
 	// sql query
