@@ -93,10 +93,10 @@ func (s *FishyServer) GetLocation(c context.Context, req *pb.GetLocationRequest)
 		}
 
 		tx, err := s.db.BeginTx(c, nil)
-		defer tx.Rollback()
 		if err != nil {
 			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
 		}
+		defer tx.Rollback()
 
 		locD = &models.LocationDensity{
 			User:     req.User,
@@ -122,10 +122,10 @@ func (s *FishyServer) GetLocation(c context.Context, req *pb.GetLocationRequest)
 
 func (s *FishyServer) SetLocation(c context.Context, req *pb.SetLocationRequest) (*pb.SetLocationResponse, error) {
 	tx, err := s.db.BeginTx(c, nil)
-	defer tx.Rollback()
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
 	}
+	defer tx.Rollback()
 
 	locD, err := models.LocationDensityByUser(s.db, req.User)
 	if err != nil {
