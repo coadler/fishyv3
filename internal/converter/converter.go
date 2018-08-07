@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"github.com/ThyLeader/fishyv3/models"
-	"github.com/ThyLeader/fishyv3/pb"
+	"github.com/coadler/fishyv3/internal/models"
+	"github.com/coadler/fishyv3/pb"
 )
 
 func FromPBLocation(loc pb.Location) models.Location {

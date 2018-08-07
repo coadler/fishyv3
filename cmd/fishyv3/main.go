@@ -5,8 +5,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/ThyLeader/fishyv3"
-	"github.com/ThyLeader/fishyv3/pb"
+	"github.com/coadler/fishyv3"
+	"github.com/coadler/fishyv3/pb"
 	"google.golang.org/grpc"
 )
 
