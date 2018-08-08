@@ -14,7 +14,7 @@ func FromPBLocation(loc pb.Location) models.Location {
 	case pb.Location_RIVER:
 		return models.LocationRiver
 	default:
-		panic("invalid enum " + loc.String())
+		panic("invalid location enum " + loc.String())
 	}
 }
 
@@ -27,6 +27,6 @@ func FromDBLocation(loc models.Location) pb.Location {
 	case models.LocationRiver:
 		return pb.Location_RIVER
 	default:
-		panic("invalid enum " + loc.String())
+		panic("invalid location enum " + loc.String())
 	}
 }

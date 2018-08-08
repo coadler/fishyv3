@@ -182,6 +182,45 @@ func OwnedItemByUser(db XODB, user string) (*OwnedItem, error) {
 	return &oi, nil
 }
 
+// OwnedItemsByUser retrieves a row from 'public.owned_items' as a OwnedItem.
+//
+// Generated from index 'user_index'.
+func OwnedItemsByUser(db XODB, user string) ([]*OwnedItem, error) {
+	var err error
+
+	// sql query
+	const sqlstr = `SELECT ` +
+		`"user", "item", "tier" ` +
+		`FROM public.owned_items ` +
+		`WHERE "user" = $1`
+
+	// run query
+	XOLog(sqlstr, user)
+	q, err := db.Query(sqlstr, user)
+	if err != nil {
+		return nil, err
+	}
+	defer q.Close()
+
+	// load results
+	res := []*OwnedItem{}
+	for q.Next() {
+		oi := OwnedItem{
+			_exists: true,
+		}
+
+		// scan
+		err = q.Scan(&oi.User, &oi.Item, &oi.Tier)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &oi)
+	}
+
+	return res, nil
+}
+
 // OwnedItemsByUserItem retrieves a row from 'public.owned_items' as a OwnedItem.
 //
 // Generated from index 'user_item'.
