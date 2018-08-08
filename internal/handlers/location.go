@@ -4,12 +4,11 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/pkg/errors"
+
 	"github.com/coadler/fishyv3/internal/converter"
 	"github.com/coadler/fishyv3/internal/models"
 	"github.com/coadler/fishyv3/pb"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (res *pb.GetLocationResponse, _ error) {
@@ -21,12 +20,6 @@ func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRe
 			return res, liftDB(err, "failed to read location density by user")
 		}
 
-		tx, err := s.db.BeginTx(ctx, nil)
-		if err != nil {
-			return res, liftDB(err, "failed to start transaction")
-		}
-		defer tx.Rollback()
-
 		locD = &models.LocationDensity{
 			User:     req.User,
 			Lake:     100,
@@ -35,13 +28,16 @@ func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRe
 			Location: models.LocationLake,
 		}
 
-		if err := locD.Save(tx); err != nil {
-			return res, liftDB(err, "failed to save location density")
+		err = inTxn(ctx, s.db, func(txn models.XODB) error {
+			return liftDB(
+				locD.Save(txn),
+				"failed to save location",
+			)
+		})
+		if err != nil {
+			return res, err
 		}
 
-		if err := tx.Commit(); err != nil {
-			return res, liftDB(err, "failed to commit transaction")
-		}
 	}
 
 	return &pb.GetLocationResponse{
@@ -49,36 +45,28 @@ func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRe
 	}, nil
 }
 
-func (s *FishyServerImpl) SetLocation(ctx context.Context, req *pb.SetLocationRequest) (*pb.SetLocationResponse, error) {
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
-	}
-	defer tx.Rollback()
-
+func (s *FishyServerImpl) SetLocation(ctx context.Context, req *pb.SetLocationRequest) (res *pb.SetLocationResponse, _ error) {
 	locD, err := models.LocationDensityByUser(s.db, req.User)
 	if err != nil {
 		if errors.Cause(err) != sql.ErrNoRows {
-			return nil, status.Errorf(codes.Internal, errors.Wrap(err, "failed to scan location density by user").Error())
+			return res, liftDB(err, "failed to read location density by user")
 		}
 
 		locD = &models.LocationDensity{
-			User:     req.User,
-			Lake:     100,
-			River:    100,
-			Ocean:    100,
-			Location: models.LocationLake,
+			User:  req.User,
+			Lake:  100,
+			River: 100,
+			Ocean: 100,
 		}
 	}
 
 	locD.Location = converter.FromPBLocation(req.Location)
-	if err := locD.Save(tx); err != nil {
-		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to save location density").Error())
-	}
+	err = inTxn(ctx, s.db, func(txn models.XODB) error {
+		return liftDB(
+			locD.Save(txn),
+			"failed to save location",
+		)
+	})
 
-	if err := tx.Commit(); err != nil {
-		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
-	}
-
-	return &pb.SetLocationResponse{}, nil
+	return res, err
 }
