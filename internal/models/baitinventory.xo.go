@@ -43,7 +43,7 @@ func (bi *BaitInventory) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.bait_inventory (` +
-		`user, tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering` +
+		`"user", "tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`)`
@@ -77,10 +77,10 @@ func (bi *BaitInventory) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.bait_inventory SET (` +
-		`tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering` +
+		`"tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering"` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5, $6, $7` +
-		`) WHERE user = $8`
+		`) WHERE "user" = $8`
 
 	// run query
 	XOLog(sqlstr, bi.Tier1, bi.Tier2, bi.Tier3, bi.Tier4, bi.Tier5, bi.Current, bi.Gathering, bi.User)
@@ -110,13 +110,13 @@ func (bi *BaitInventory) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.bait_inventory (` +
-		`user, tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering` +
+		`"user", "tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.tier_1, EXCLUDED.tier_2, EXCLUDED.tier_3, EXCLUDED.tier_4, EXCLUDED.tier_5, EXCLUDED.current, EXCLUDED.gathering` +
+		`EXCLUDED."user", EXCLUDED."tier_1", EXCLUDED."tier_2", EXCLUDED."tier_3", EXCLUDED."tier_4", EXCLUDED."tier_5", EXCLUDED."current", EXCLUDED."gathering"` +
 		`)`
 
 	// run query
@@ -147,7 +147,7 @@ func (bi *BaitInventory) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.bait_inventory WHERE user = $1`
+	const sqlstr = `DELETE FROM public.bait_inventory WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, bi.User)
@@ -170,9 +170,9 @@ func BaitInventoryByUser(db XODB, user string) (*BaitInventory, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering ` +
+		`"user", "tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering" ` +
 		`FROM public.bait_inventory ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)

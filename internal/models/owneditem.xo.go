@@ -38,7 +38,7 @@ func (oi *OwnedItem) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.owned_items (` +
-		`user, item, tier` +
+		`"user", "item", "tier"` +
 		`) VALUES (` +
 		`$1, $2, $3` +
 		`)`
@@ -72,10 +72,10 @@ func (oi *OwnedItem) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.owned_items SET (` +
-		`item, tier` +
+		`"item", "tier"` +
 		`) = ( ` +
 		`$1, $2` +
-		`) WHERE user = $3`
+		`) WHERE "user" = $3`
 
 	// run query
 	XOLog(sqlstr, oi.Item, oi.Tier, oi.User)
@@ -105,13 +105,13 @@ func (oi *OwnedItem) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.owned_items (` +
-		`user, item, tier` +
+		`"user", "item", "tier"` +
 		`) VALUES (` +
 		`$1, $2, $3` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, item, tier` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "item", "tier"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.item, EXCLUDED.tier` +
+		`EXCLUDED."user", EXCLUDED."item", EXCLUDED."tier"` +
 		`)`
 
 	// run query
@@ -142,7 +142,7 @@ func (oi *OwnedItem) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.owned_items WHERE user = $1`
+	const sqlstr = `DELETE FROM public.owned_items WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, oi.User)
@@ -165,9 +165,9 @@ func OwnedItemByUser(db XODB, user string) (*OwnedItem, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, item, tier ` +
+		`"user", "item", "tier" ` +
 		`FROM public.owned_items ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)
@@ -191,9 +191,9 @@ func OwnedItemsByUserItem(db XODB, user string, item Item) ([]*OwnedItem, error)
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, item, tier ` +
+		`"user", "item", "tier" ` +
 		`FROM public.owned_items ` +
-		`WHERE user = $1 AND item = $2`
+		`WHERE "user" = $1 AND "item" = $2`
 
 	// run query
 	XOLog(sqlstr, user, item)
@@ -230,9 +230,9 @@ func OwnedItemByUserItemTier(db XODB, user string, item Item, tier int) (*OwnedI
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, item, tier ` +
+		`"user", "item", "tier" ` +
 		`FROM public.owned_items ` +
-		`WHERE user = $1 AND item = $2 AND tier = $3`
+		`WHERE "user" = $1 AND "item" = $2 AND "tier" = $3`
 
 	// run query
 	XOLog(sqlstr, user, item, tier)

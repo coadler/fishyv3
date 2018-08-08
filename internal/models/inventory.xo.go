@@ -40,10 +40,10 @@ func (i *Inventory) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.inventory (` +
-		`fish, garbage, legendary, worth` +
+		`"fish", "garbage", "legendary", "worth"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4` +
-		`) RETURNING user`
+		`) RETURNING "user"`
 
 	// run query
 	XOLog(sqlstr, i.Fish, i.Garbage, i.Legendary, i.Worth)
@@ -74,10 +74,10 @@ func (i *Inventory) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.inventory SET (` +
-		`fish, garbage, legendary, worth` +
+		`"fish", "garbage", "legendary", "worth"` +
 		`) = ( ` +
 		`$1, $2, $3, $4` +
-		`) WHERE user = $5`
+		`) WHERE "user" = $5`
 
 	// run query
 	XOLog(sqlstr, i.Fish, i.Garbage, i.Legendary, i.Worth, i.User)
@@ -107,13 +107,13 @@ func (i *Inventory) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.inventory (` +
-		`user, fish, garbage, legendary, worth` +
+		`"user", "fish", "garbage", "legendary", "worth"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, fish, garbage, legendary, worth` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "fish", "garbage", "legendary", "worth"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.fish, EXCLUDED.garbage, EXCLUDED.legendary, EXCLUDED.worth` +
+		`EXCLUDED."user", EXCLUDED."fish", EXCLUDED."garbage", EXCLUDED."legendary", EXCLUDED."worth"` +
 		`)`
 
 	// run query
@@ -144,7 +144,7 @@ func (i *Inventory) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.inventory WHERE user = $1`
+	const sqlstr = `DELETE FROM public.inventory WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, i.User)
@@ -167,9 +167,9 @@ func InventoryByUser(db XODB, user string) (*Inventory, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, fish, garbage, legendary, worth ` +
+		`"user", "fish", "garbage", "legendary", "worth" ` +
 		`FROM public.inventory ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)

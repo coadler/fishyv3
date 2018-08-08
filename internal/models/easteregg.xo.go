@@ -40,10 +40,10 @@ func (ee *EasterEgg) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.easter_eggs (` +
-		`user, easter_egg, amt` +
+		`"user", "easter_egg", "amt"` +
 		`) VALUES (` +
 		`$1, $2, $3` +
-		`) RETURNING id`
+		`) RETURNING "id"`
 
 	// run query
 	XOLog(sqlstr, ee.User, ee.EasterEgg, ee.Amt)
@@ -74,10 +74,10 @@ func (ee *EasterEgg) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.easter_eggs SET (` +
-		`user, easter_egg, amt` +
+		`"user", "easter_egg", "amt"` +
 		`) = ( ` +
 		`$1, $2, $3` +
-		`) WHERE id = $4`
+		`) WHERE "id" = $4`
 
 	// run query
 	XOLog(sqlstr, ee.User, ee.EasterEgg, ee.Amt, ee.ID)
@@ -107,13 +107,13 @@ func (ee *EasterEgg) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.easter_eggs (` +
-		`id, user, easter_egg, amt` +
+		`"id", "user", "easter_egg", "amt"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, user, easter_egg, amt` +
+		`) ON CONFLICT ("id") DO UPDATE SET (` +
+		`"id", "user", "easter_egg", "amt"` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.user, EXCLUDED.easter_egg, EXCLUDED.amt` +
+		`EXCLUDED."id", EXCLUDED."user", EXCLUDED."easter_egg", EXCLUDED."amt"` +
 		`)`
 
 	// run query
@@ -144,7 +144,7 @@ func (ee *EasterEgg) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.easter_eggs WHERE id = $1`
+	const sqlstr = `DELETE FROM public.easter_eggs WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, ee.ID)
@@ -167,9 +167,9 @@ func EasterEggByID(db XODB, id int) (*EasterEgg, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user, easter_egg, amt ` +
+		`"id", "user", "easter_egg", "amt" ` +
 		`FROM public.easter_eggs ` +
-		`WHERE id = $1`
+		`WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, id)
@@ -193,9 +193,9 @@ func EasterEggByUserEasterEgg(db XODB, user string, easterEgg EasterEggType) (*E
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user, easter_egg, amt ` +
+		`"id", "user", "easter_egg", "amt" ` +
 		`FROM public.easter_eggs ` +
-		`WHERE user = $1 AND easter_egg = $2`
+		`WHERE "user" = $1 AND "easter_egg" = $2`
 
 	// run query
 	XOLog(sqlstr, user, easterEgg)

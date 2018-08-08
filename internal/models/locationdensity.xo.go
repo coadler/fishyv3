@@ -40,7 +40,7 @@ func (ld *LocationDensity) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.location_density (` +
-		`user, lake, river, ocean, location` +
+		`"user", "lake", "river", "ocean", "location"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
 		`)`
@@ -74,10 +74,10 @@ func (ld *LocationDensity) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.location_density SET (` +
-		`lake, river, ocean, location` +
+		`"lake", "river", "ocean", "location"` +
 		`) = ( ` +
 		`$1, $2, $3, $4` +
-		`) WHERE user = $5`
+		`) WHERE "user" = $5`
 
 	// run query
 	XOLog(sqlstr, ld.Lake, ld.River, ld.Ocean, ld.Location, ld.User)
@@ -107,13 +107,13 @@ func (ld *LocationDensity) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.location_density (` +
-		`user, lake, river, ocean, location` +
+		`"user", "lake", "river", "ocean", "location"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, lake, river, ocean, location` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "lake", "river", "ocean", "location"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.lake, EXCLUDED.river, EXCLUDED.ocean, EXCLUDED.location` +
+		`EXCLUDED."user", EXCLUDED."lake", EXCLUDED."river", EXCLUDED."ocean", EXCLUDED."location"` +
 		`)`
 
 	// run query
@@ -144,7 +144,7 @@ func (ld *LocationDensity) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.location_density WHERE user = $1`
+	const sqlstr = `DELETE FROM public.location_density WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, ld.User)
@@ -167,9 +167,9 @@ func LocationDensityByUser(db XODB, user string) (*LocationDensity, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, lake, river, ocean, location ` +
+		`"user", "lake", "river", "ocean", "location" ` +
 		`FROM public.location_density ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)

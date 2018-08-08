@@ -41,10 +41,10 @@ func (gr *GlobalRanking) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.global_rankings (` +
-		`score, garbage, fish, avg_length, casts` +
+		`"score", "garbage", "fish", "avg_length", "casts"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
-		`) RETURNING user`
+		`) RETURNING "user"`
 
 	// run query
 	XOLog(sqlstr, gr.Score, gr.Garbage, gr.Fish, gr.AvgLength, gr.Casts)
@@ -75,10 +75,10 @@ func (gr *GlobalRanking) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.global_rankings SET (` +
-		`score, garbage, fish, avg_length, casts` +
+		`"score", "garbage", "fish", "avg_length", "casts"` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5` +
-		`) WHERE user = $6`
+		`) WHERE "user" = $6`
 
 	// run query
 	XOLog(sqlstr, gr.Score, gr.Garbage, gr.Fish, gr.AvgLength, gr.Casts, gr.User)
@@ -108,13 +108,13 @@ func (gr *GlobalRanking) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.global_rankings (` +
-		`user, score, garbage, fish, avg_length, casts` +
+		`"user", "score", "garbage", "fish", "avg_length", "casts"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, score, garbage, fish, avg_length, casts` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "score", "garbage", "fish", "avg_length", "casts"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.score, EXCLUDED.garbage, EXCLUDED.fish, EXCLUDED.avg_length, EXCLUDED.casts` +
+		`EXCLUDED."user", EXCLUDED."score", EXCLUDED."garbage", EXCLUDED."fish", EXCLUDED."avg_length", EXCLUDED."casts"` +
 		`)`
 
 	// run query
@@ -145,7 +145,7 @@ func (gr *GlobalRanking) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.global_rankings WHERE user = $1`
+	const sqlstr = `DELETE FROM public.global_rankings WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, gr.User)
@@ -168,9 +168,9 @@ func GlobalRankingByUser(db XODB, user string) (*GlobalRanking, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, score, garbage, fish, avg_length, casts ` +
+		`"user", "score", "garbage", "fish", "avg_length", "casts" ` +
 		`FROM public.global_rankings ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)
@@ -194,9 +194,9 @@ func GlobalRankingsByUserScore(db XODB, user string, score int) ([]*GlobalRankin
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, score, garbage, fish, avg_length, casts ` +
+		`"user", "score", "garbage", "fish", "avg_length", "casts" ` +
 		`FROM public.global_rankings ` +
-		`WHERE user = $1 AND score = $2`
+		`WHERE "user" = $1 AND "score" = $2`
 
 	// run query
 	XOLog(sqlstr, user, score)

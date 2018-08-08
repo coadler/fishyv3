@@ -43,10 +43,10 @@ func (gr *GuildRanking) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.guild_rankings (` +
-		`user, guild, score, garbage, fish, casts, avg_length` +
+		`"user", "guild", "score", "garbage", "fish", "casts", "avg_length"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7` +
-		`) RETURNING id`
+		`) RETURNING "id"`
 
 	// run query
 	XOLog(sqlstr, gr.User, gr.Guild, gr.Score, gr.Garbage, gr.Fish, gr.Casts, gr.AvgLength)
@@ -77,10 +77,10 @@ func (gr *GuildRanking) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.guild_rankings SET (` +
-		`user, guild, score, garbage, fish, casts, avg_length` +
+		`"user", "guild", "score", "garbage", "fish", "casts", "avg_length"` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5, $6, $7` +
-		`) WHERE id = $8`
+		`) WHERE "id" = $8`
 
 	// run query
 	XOLog(sqlstr, gr.User, gr.Guild, gr.Score, gr.Garbage, gr.Fish, gr.Casts, gr.AvgLength, gr.ID)
@@ -110,13 +110,13 @@ func (gr *GuildRanking) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.guild_rankings (` +
-		`id, user, guild, score, garbage, fish, casts, avg_length` +
+		`"id", "user", "guild", "score", "garbage", "fish", "casts", "avg_length"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, user, guild, score, garbage, fish, casts, avg_length` +
+		`) ON CONFLICT ("id") DO UPDATE SET (` +
+		`"id", "user", "guild", "score", "garbage", "fish", "casts", "avg_length"` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.user, EXCLUDED.guild, EXCLUDED.score, EXCLUDED.garbage, EXCLUDED.fish, EXCLUDED.casts, EXCLUDED.avg_length` +
+		`EXCLUDED."id", EXCLUDED."user", EXCLUDED."guild", EXCLUDED."score", EXCLUDED."garbage", EXCLUDED."fish", EXCLUDED."casts", EXCLUDED."avg_length"` +
 		`)`
 
 	// run query
@@ -147,7 +147,7 @@ func (gr *GuildRanking) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.guild_rankings WHERE id = $1`
+	const sqlstr = `DELETE FROM public.guild_rankings WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, gr.ID)
@@ -170,9 +170,9 @@ func GuildRankingByID(db XODB, id int) (*GuildRanking, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user, guild, score, garbage, fish, casts, avg_length ` +
+		`"id", "user", "guild", "score", "garbage", "fish", "casts", "avg_length" ` +
 		`FROM public.guild_rankings ` +
-		`WHERE id = $1`
+		`WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, id)
@@ -196,9 +196,9 @@ func GuildRankingByUserGuild(db XODB, user string, guild string) (*GuildRanking,
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user, guild, score, garbage, fish, casts, avg_length ` +
+		`"id", "user", "guild", "score", "garbage", "fish", "casts", "avg_length" ` +
 		`FROM public.guild_rankings ` +
-		`WHERE user = $1 AND guild = $2`
+		`WHERE "user" = $1 AND "guild" = $2`
 
 	// run query
 	XOLog(sqlstr, user, guild)
@@ -222,9 +222,9 @@ func GuildRankingsByUserGuildScore(db XODB, user string, guild string, score int
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user, guild, score, garbage, fish, casts, avg_length ` +
+		`"id", "user", "guild", "score", "garbage", "fish", "casts", "avg_length" ` +
 		`FROM public.guild_rankings ` +
-		`WHERE user = $1 AND guild = $2 AND score = $3`
+		`WHERE "user" = $1 AND "guild" = $2 AND "score" = $3`
 
 	// run query
 	XOLog(sqlstr, user, guild, score)

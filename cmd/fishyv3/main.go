@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/coadler/fishyv3/internal/handlers"
@@ -17,25 +16,33 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
+		must(err)
+	}
 
+	lis, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		logger.Fatal("failed to listen", zap.Error(err))
 	}
 
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_ctxtags.UnaryServerInterceptor(),
-			grpc_prometheus.UnaryServerInterceptor,
-			grpc_zap.UnaryServerInterceptor(logger),
-			grpc_recovery.UnaryServerInterceptor(),
-		)),
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpc_ctxtags.UnaryServerInterceptor(),
+				grpc_prometheus.UnaryServerInterceptor,
+				grpc_zap.UnaryServerInterceptor(logger),
+				grpc_recovery.UnaryServerInterceptor(),
+			),
+		),
 	)
-	pb.RegisterFishyServer(srv, fishyv3.NewFishyServer())
+	pb.RegisterFishyServer(srv, fishyv3.NewFishyServer(logger))
 	fmt.Println("Listening on port :8080")
 	srv.Serve(lis)
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

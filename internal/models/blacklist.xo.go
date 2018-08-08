@@ -37,10 +37,10 @@ func (b *Blacklist) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.blacklist (` +
-		`user` +
+		`"user"` +
 		`) VALUES (` +
 		`$1` +
-		`) RETURNING id`
+		`) RETURNING "id"`
 
 	// run query
 	XOLog(sqlstr, b.User)
@@ -71,10 +71,10 @@ func (b *Blacklist) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.blacklist SET (` +
-		`user` +
+		`"user"` +
 		`) = ( ` +
 		`$1` +
-		`) WHERE id = $2`
+		`) WHERE "id" = $2`
 
 	// run query
 	XOLog(sqlstr, b.User, b.ID)
@@ -104,13 +104,13 @@ func (b *Blacklist) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.blacklist (` +
-		`id, user` +
+		`"id", "user"` +
 		`) VALUES (` +
 		`$1, $2` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, user` +
+		`) ON CONFLICT ("id") DO UPDATE SET (` +
+		`"id", "user"` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.user` +
+		`EXCLUDED."id", EXCLUDED."user"` +
 		`)`
 
 	// run query
@@ -141,7 +141,7 @@ func (b *Blacklist) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.blacklist WHERE id = $1`
+	const sqlstr = `DELETE FROM public.blacklist WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, b.ID)
@@ -164,9 +164,9 @@ func BlacklistByID(db XODB, id int) (*Blacklist, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user ` +
+		`"id", "user" ` +
 		`FROM public.blacklist ` +
-		`WHERE id = $1`
+		`WHERE "id" = $1`
 
 	// run query
 	XOLog(sqlstr, id)
@@ -190,9 +190,9 @@ func BlacklistByUser(db XODB, user string) (*Blacklist, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, user ` +
+		`"id", "user" ` +
 		`FROM public.blacklist ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)

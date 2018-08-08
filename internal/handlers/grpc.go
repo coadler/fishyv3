@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -21,19 +22,23 @@ import (
 )
 
 type FishyServerImpl struct {
+	log *zap.Logger
+
 	db *sql.DB
 }
 
 var _ pb.FishyServer = &FishyServerImpl{}
 
-func NewFishyServer() *FishyServerImpl {
+func NewFishyServer(logger *zap.Logger) *FishyServerImpl {
 	// by reading this comment you agree to not hack my database
-	db, err := sql.Open("postgres", "pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost user=colinadler dbname=fishyv3 sslmode=disable")
+	// db, err := sql.Open("postgres", "pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable")
 	if err != nil {
-		panic(err)
+		logger.Fatal("failed to connect to postgres", zap.Error(err))
 	}
 
 	return &FishyServerImpl{
+		logger,
 		db,
 	}
 }
@@ -43,11 +48,11 @@ func NewFishyServer() *FishyServerImpl {
 //
 // redis was a great idea
 
-func (s *FishyServerImpl) Fishy(c context.Context, req *pb.FishRequest) (*pb.FishResponse, error) {
+func (s *FishyServerImpl) Fishy(ctx context.Context, req *pb.FishRequest) (*pb.FishResponse, error) {
 	return &pb.FishResponse{}, nil
 }
 
-func (s *FishyServerImpl) Inventory(c context.Context, req *pb.InventoryRequest) (*pb.InventoryResponse, error) {
+func (s *FishyServerImpl) Inventory(ctx context.Context, req *pb.InventoryRequest) (*pb.InventoryResponse, error) {
 	return &pb.InventoryResponse{
 		Items: &pb.UserItems{
 			Bait: &pb.UserItem{
@@ -83,7 +88,7 @@ func (s *FishyServerImpl) Inventory(c context.Context, req *pb.InventoryRequest)
 	}, nil
 }
 
-func (s *FishyServerImpl) GetLocation(c context.Context, req *pb.GetLocationRequest) (*pb.GetLocationResponse, error) {
+func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (*pb.GetLocationResponse, error) {
 	// this could be cleaned up into a helper since it is going to be repeated a lot
 	// we never have a guarantee something exists and can't fail if it doesn't
 	locD, err := models.LocationDensityByUser(s.db, req.User)
@@ -92,7 +97,7 @@ func (s *FishyServerImpl) GetLocation(c context.Context, req *pb.GetLocationRequ
 			return nil, status.Errorf(codes.Internal, errors.Wrap(err, "failed to scan location density by user").Error())
 		}
 
-		tx, err := s.db.BeginTx(c, nil)
+		tx, err := s.db.BeginTx(ctx, nil)
 		if err != nil {
 			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
 		}
@@ -120,8 +125,8 @@ func (s *FishyServerImpl) GetLocation(c context.Context, req *pb.GetLocationRequ
 	}, nil
 }
 
-func (s *FishyServerImpl) SetLocation(c context.Context, req *pb.SetLocationRequest) (*pb.SetLocationResponse, error) {
-	tx, err := s.db.BeginTx(c, nil)
+func (s *FishyServerImpl) SetLocation(ctx context.Context, req *pb.SetLocationRequest) (*pb.SetLocationResponse, error) {
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
 	}
@@ -154,29 +159,77 @@ func (s *FishyServerImpl) SetLocation(c context.Context, req *pb.SetLocationRequ
 	return &pb.SetLocationResponse{}, nil
 }
 
-func (s *FishyServerImpl) BuyItem(c context.Context, req *pb.BuyItemRequest) (*pb.BuyItemResponse, error) {
+func (s *FishyServerImpl) BuyItem(ctx context.Context, req *pb.BuyItemRequest) (*pb.BuyItemResponse, error) {
 	return &pb.BuyItemResponse{}, nil
 }
 
-func (s *FishyServerImpl) Blacklist(c context.Context, req *pb.BlacklistRequest) (*pb.BlacklistResponse, error) {
+func (s *FishyServerImpl) Blacklist(ctx context.Context, req *pb.BlacklistRequest) (*pb.BlacklistResponse, error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
+	}
+	defer tx.Rollback()
+
+	if err := (&models.Blacklist{
+		User: req.User,
+	}).Upsert(tx); err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to save blacklist").Error())
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
+	}
+
 	return &pb.BlacklistResponse{}, nil
 }
 
-func (s *FishyServerImpl) Unblacklist(c context.Context, req *pb.UnblacklistRequest) (*pb.UnblacklistResponse, error) {
-	return &pb.UnblacklistResponse{}, nil
+func (s *FishyServerImpl) Unblacklist(ctx context.Context, req *pb.UnblacklistRequest) (res *pb.UnblacklistResponse, err error) {
+	b, err := models.BlacklistByUser(s.db, req.User)
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+
+	if err = inTxn(ctx, s.db, func(txn models.XODB) error {
+		if err := b.Delete(txn); err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+		return nil
+	}); err != nil {
+		return res, err
+	}
+
+	return res, nil
 }
 
-func (s *FishyServerImpl) StartGatherBait(c context.Context, req *pb.StartGatherBaitRequest) (*pb.StartGatherBaitResponse, error) {
+func inTxn(ctx context.Context, db *sql.DB, fn func(txn models.XODB) error) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
+	}
+	defer tx.Rollback()
+
+	err = fn(tx)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
+	}
+	return nil
+}
+
+func (s *FishyServerImpl) StartGatherBait(ctx context.Context, req *pb.StartGatherBaitRequest) (*pb.StartGatherBaitResponse, error) {
 	return &pb.StartGatherBaitResponse{}, nil
 }
 
-func (s *FishyServerImpl) CheckGatherBait(c context.Context, req *pb.CheckGatherBaitRequest) (*pb.CheckGatherBaitResponse, error) {
+func (s *FishyServerImpl) CheckGatherBait(ctx context.Context, req *pb.CheckGatherBaitRequest) (*pb.CheckGatherBaitResponse, error) {
 	return &pb.CheckGatherBaitResponse{
 		Remaining: 9254,
 	}, nil
 }
 
-func (s *FishyServerImpl) Leaderboard(c context.Context, req *pb.LeaderboardRequest) (*pb.LeaderboardResponse, error) {
+func (s *FishyServerImpl) Leaderboard(ctx context.Context, req *pb.LeaderboardRequest) (*pb.LeaderboardResponse, error) {
 	return &pb.LeaderboardResponse{
 		Users: []*pb.LeaderboardUser{
 			{
@@ -203,7 +256,7 @@ func (s *FishyServerImpl) Leaderboard(c context.Context, req *pb.LeaderboardRequ
 	}, nil
 }
 
-func (s *FishyServerImpl) CheckTime(c context.Context, req *pb.CheckTimeRequest) (*pb.CheckTimeResponse, error) {
+func (s *FishyServerImpl) CheckTime(ctx context.Context, req *pb.CheckTimeRequest) (*pb.CheckTimeResponse, error) {
 	var morning, night bool
 	now := time.Now()
 
@@ -221,7 +274,7 @@ func (s *FishyServerImpl) CheckTime(c context.Context, req *pb.CheckTimeRequest)
 	}, nil
 }
 
-func (s *FishyServerImpl) GetBaitInventory(c context.Context, req *pb.GetBaitInventoryRequest) (*pb.GetBaitInventoryResponse, error) {
+func (s *FishyServerImpl) GetBaitInventory(ctx context.Context, req *pb.GetBaitInventoryRequest) (*pb.GetBaitInventoryResponse, error) {
 	return &pb.GetBaitInventoryResponse{
 		MaxBait:      100,
 		CurrentCount: 33,
@@ -237,21 +290,21 @@ func (s *FishyServerImpl) GetBaitInventory(c context.Context, req *pb.GetBaitInv
 	}, nil
 }
 
-func (s *FishyServerImpl) BuyBait(c context.Context, req *pb.BuyBaitRequest) (*pb.BuyBaitResponse, error) {
+func (s *FishyServerImpl) BuyBait(ctx context.Context, req *pb.BuyBaitRequest) (*pb.BuyBaitResponse, error) {
 	return &pb.BuyBaitResponse{}, nil
 }
 
-func (s *FishyServerImpl) GetBaitTier(c context.Context, req *pb.GetBaitTierRequest) (*pb.GetBaitTierResponse, error) {
+func (s *FishyServerImpl) GetBaitTier(ctx context.Context, req *pb.GetBaitTierRequest) (*pb.GetBaitTierResponse, error) {
 	return &pb.GetBaitTierResponse{
 		Tier: pb.BaitTier_T1,
 	}, nil
 }
 
-func (s *FishyServerImpl) SetBaitTier(c context.Context, req *pb.SetBaitTierRequest) (*pb.SetBaitTierResponse, error) {
+func (s *FishyServerImpl) SetBaitTier(ctx context.Context, req *pb.SetBaitTierRequest) (*pb.SetBaitTierResponse, error) {
 	return &pb.SetBaitTierResponse{}, nil
 }
 
-func (s *FishyServerImpl) SellFish(c context.Context, req *pb.SellFishRequest) (*pb.SellFishResponse, error) {
+func (s *FishyServerImpl) SellFish(ctx context.Context, req *pb.SellFishRequest) (*pb.SellFishResponse, error) {
 	return &pb.SellFishResponse{
 		Worth: 412,
 	}, nil

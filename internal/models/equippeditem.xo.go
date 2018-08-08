@@ -41,7 +41,7 @@ func (ei *EquippedItem) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.equipped_items (` +
-		`user, bait, rod, hook, vehicle, bait_box` +
+		`"user", "bait", "rod", "hook", "vehicle", "bait_box"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
 		`)`
@@ -75,10 +75,10 @@ func (ei *EquippedItem) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.equipped_items SET (` +
-		`bait, rod, hook, vehicle, bait_box` +
+		`"bait", "rod", "hook", "vehicle", "bait_box"` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5` +
-		`) WHERE user = $6`
+		`) WHERE "user" = $6`
 
 	// run query
 	XOLog(sqlstr, ei.Bait, ei.Rod, ei.Hook, ei.Vehicle, ei.BaitBox, ei.User)
@@ -108,13 +108,13 @@ func (ei *EquippedItem) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.equipped_items (` +
-		`user, bait, rod, hook, vehicle, bait_box` +
+		`"user", "bait", "rod", "hook", "vehicle", "bait_box"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
-		`) ON CONFLICT (user) DO UPDATE SET (` +
-		`user, bait, rod, hook, vehicle, bait_box` +
+		`) ON CONFLICT ("user") DO UPDATE SET (` +
+		`"user", "bait", "rod", "hook", "vehicle", "bait_box"` +
 		`) = (` +
-		`EXCLUDED.user, EXCLUDED.bait, EXCLUDED.rod, EXCLUDED.hook, EXCLUDED.vehicle, EXCLUDED.bait_box` +
+		`EXCLUDED."user", EXCLUDED."bait", EXCLUDED."rod", EXCLUDED."hook", EXCLUDED."vehicle", EXCLUDED."bait_box"` +
 		`)`
 
 	// run query
@@ -145,7 +145,7 @@ func (ei *EquippedItem) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.equipped_items WHERE user = $1`
+	const sqlstr = `DELETE FROM public.equipped_items WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, ei.User)
@@ -168,9 +168,9 @@ func EquippedItemByUser(db XODB, user string) (*EquippedItem, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`user, bait, rod, hook, vehicle, bait_box ` +
+		`"user", "bait", "rod", "hook", "vehicle", "bait_box" ` +
 		`FROM public.equipped_items ` +
-		`WHERE user = $1`
+		`WHERE "user" = $1`
 
 	// run query
 	XOLog(sqlstr, user)
