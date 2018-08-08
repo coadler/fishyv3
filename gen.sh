@@ -1,13 +1,8 @@
 #!/bin/bash
 
 # make pushd and popd silent
-pushd () {
-    command pushd "$@" > /dev/null
-}
-
-popd () {
-    command popd "$@" > /dev/null
-}
+pushd () { command pushd "$@" > /dev/null ; }
+popd () { command popd "$@" > /dev/null ; }
 
 pushd internal/
     rm -rf models/*.xo.go
