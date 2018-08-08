@@ -12,18 +12,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (*pb.GetLocationResponse, error) {
+func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (res *pb.GetLocationResponse, _ error) {
 	// this could be cleaned up into a helper since it is going to be repeated a lot
 	// we never have a guarantee something exists and can't fail if it doesn't
 	locD, err := models.LocationDensityByUser(s.db, req.User)
 	if err != nil {
 		if errors.Cause(err) != sql.ErrNoRows {
-			return nil, status.Errorf(codes.Internal, errors.Wrap(err, "failed to scan location density by user").Error())
+			return res, liftDB(err, "failed to read location density by user")
 		}
 
 		tx, err := s.db.BeginTx(ctx, nil)
 		if err != nil {
-			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to start transaction").Error())
+			return res, liftDB(err, "failed to start transaction")
 		}
 		defer tx.Rollback()
 
@@ -36,11 +36,11 @@ func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRe
 		}
 
 		if err := locD.Save(tx); err != nil {
-			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to save location density").Error())
+			return res, liftDB(err, "failed to save location density")
 		}
 
 		if err := tx.Commit(); err != nil {
-			return nil, status.Error(codes.Internal, errors.Wrap(err, "failed to commit transaction").Error())
+			return res, liftDB(err, "failed to commit transaction")
 		}
 	}
 
