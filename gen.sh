@@ -9,3 +9,10 @@ pushd internal/
     rm -rf models/*.xo.go
     xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -o models/ --template-path models/templates/
 popd
+
+pushd internal/models/schema
+    pg_dump -h localhost \
+    -U colinadler \
+    -f dump.sql \
+    fishyv3
+popd
