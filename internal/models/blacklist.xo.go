@@ -170,15 +170,14 @@ func BlacklistByID(db XODB, id int) (*Blacklist, error) {
 
 	// run query
 	XOLog(sqlstr, id)
-	b := Blacklist{
-		_exists: true,
-	}
+	b := Blacklist{}
 
 	err = db.QueryRow(sqlstr, id).Scan(&b.ID, &b.User)
 	if err != nil {
-		return nil, err
+		return &b, err
 	}
 
+	b._exists = true
 	return &b, nil
 }
 
@@ -196,14 +195,13 @@ func BlacklistByUser(db XODB, user string) (*Blacklist, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	b := Blacklist{
-		_exists: true,
-	}
+	b := Blacklist{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&b.ID, &b.User)
 	if err != nil {
-		return nil, err
+		return &b, err
 	}
 
+	b._exists = true
 	return &b, nil
 }

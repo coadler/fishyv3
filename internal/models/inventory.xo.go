@@ -173,14 +173,13 @@ func InventoryByUser(db XODB, user string) (*Inventory, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	i := Inventory{
-		_exists: true,
-	}
+	i := Inventory{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&i.User, &i.Fish, &i.Garbage, &i.Legendary, &i.Worth)
 	if err != nil {
-		return nil, err
+		return &i, err
 	}
 
+	i._exists = true
 	return &i, nil
 }

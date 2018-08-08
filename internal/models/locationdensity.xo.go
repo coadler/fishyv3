@@ -173,14 +173,13 @@ func LocationDensityByUser(db XODB, user string) (*LocationDensity, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	ld := LocationDensity{
-		_exists: true,
-	}
+	ld := LocationDensity{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&ld.User, &ld.Lake, &ld.River, &ld.Ocean, &ld.Location)
 	if err != nil {
-		return nil, err
+		return &ld, err
 	}
 
+	ld._exists = true
 	return &ld, nil
 }

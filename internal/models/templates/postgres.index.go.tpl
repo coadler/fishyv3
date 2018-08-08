@@ -15,17 +15,16 @@ func {{ .FuncName }}(db XODB{{ goparamlist .Fields true true }}) ({{ if not .Ind
 	// run query
 	XOLog(sqlstr{{ goparamlist .Fields true false }})
 {{- if .Index.IsUnique }}
-	{{ $short }} := {{ .Type.Name }}{
-	{{- if .Type.PrimaryKey }}
-		_exists: true,
-	{{ end -}}
-	}
+	{{ $short }} := {{ .Type.Name }}{}
 
 	err = db.QueryRow(sqlstr{{ goparamlist .Fields true false }}).Scan({{ fieldnames .Type.Fields (print "&" $short) }})
 	if err != nil {
-		return nil, err
+		return &{{ $short }}, err
 	}
 
+	{{ if .Type.PrimaryKey }}
+		{{ $short }}._exists = true
+	{{ end -}}
 	return &{{ $short }}, nil
 {{- else }}
 	q, err := db.Query(sqlstr{{ goparamlist .Fields true false }})

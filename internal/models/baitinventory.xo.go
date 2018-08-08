@@ -176,14 +176,13 @@ func BaitInventoryByUser(db XODB, user string) (*BaitInventory, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	bi := BaitInventory{
-		_exists: true,
-	}
+	bi := BaitInventory{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&bi.User, &bi.Tier1, &bi.Tier2, &bi.Tier3, &bi.Tier4, &bi.Tier5, &bi.Current, &bi.Gathering)
 	if err != nil {
-		return nil, err
+		return &bi, err
 	}
 
+	bi._exists = true
 	return &bi, nil
 }

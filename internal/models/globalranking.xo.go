@@ -174,15 +174,14 @@ func GlobalRankingByUser(db XODB, user string) (*GlobalRanking, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	gr := GlobalRanking{
-		_exists: true,
-	}
+	gr := GlobalRanking{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&gr.User, &gr.Score, &gr.Garbage, &gr.Fish, &gr.AvgLength, &gr.Casts)
 	if err != nil {
-		return nil, err
+		return &gr, err
 	}
 
+	gr._exists = true
 	return &gr, nil
 }
 

@@ -174,14 +174,13 @@ func EquippedItemByUser(db XODB, user string) (*EquippedItem, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	ei := EquippedItem{
-		_exists: true,
-	}
+	ei := EquippedItem{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&ei.User, &ei.Bait, &ei.Rod, &ei.Hook, &ei.Vehicle, &ei.BaitBox)
 	if err != nil {
-		return nil, err
+		return &ei, err
 	}
 
+	ei._exists = true
 	return &ei, nil
 }

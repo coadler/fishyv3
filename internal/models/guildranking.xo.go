@@ -176,15 +176,14 @@ func GuildRankingByID(db XODB, id int) (*GuildRanking, error) {
 
 	// run query
 	XOLog(sqlstr, id)
-	gr := GuildRanking{
-		_exists: true,
-	}
+	gr := GuildRanking{}
 
 	err = db.QueryRow(sqlstr, id).Scan(&gr.ID, &gr.User, &gr.Guild, &gr.Score, &gr.Garbage, &gr.Fish, &gr.Casts, &gr.AvgLength)
 	if err != nil {
-		return nil, err
+		return &gr, err
 	}
 
+	gr._exists = true
 	return &gr, nil
 }
 
@@ -202,15 +201,14 @@ func GuildRankingByUserGuild(db XODB, user string, guild string) (*GuildRanking,
 
 	// run query
 	XOLog(sqlstr, user, guild)
-	gr := GuildRanking{
-		_exists: true,
-	}
+	gr := GuildRanking{}
 
 	err = db.QueryRow(sqlstr, user, guild).Scan(&gr.ID, &gr.User, &gr.Guild, &gr.Score, &gr.Garbage, &gr.Fish, &gr.Casts, &gr.AvgLength)
 	if err != nil {
-		return nil, err
+		return &gr, err
 	}
 
+	gr._exists = true
 	return &gr, nil
 }
 

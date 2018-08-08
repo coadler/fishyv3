@@ -171,15 +171,14 @@ func OwnedItemByUser(db XODB, user string) (*OwnedItem, error) {
 
 	// run query
 	XOLog(sqlstr, user)
-	oi := OwnedItem{
-		_exists: true,
-	}
+	oi := OwnedItem{}
 
 	err = db.QueryRow(sqlstr, user).Scan(&oi.User, &oi.Item, &oi.Tier)
 	if err != nil {
-		return nil, err
+		return &oi, err
 	}
 
+	oi._exists = true
 	return &oi, nil
 }
 
@@ -236,14 +235,13 @@ func OwnedItemByUserItemTier(db XODB, user string, item Item, tier int) (*OwnedI
 
 	// run query
 	XOLog(sqlstr, user, item, tier)
-	oi := OwnedItem{
-		_exists: true,
-	}
+	oi := OwnedItem{}
 
 	err = db.QueryRow(sqlstr, user, item, tier).Scan(&oi.User, &oi.Item, &oi.Tier)
 	if err != nil {
-		return nil, err
+		return &oi, err
 	}
 
+	oi._exists = true
 	return &oi, nil
 }

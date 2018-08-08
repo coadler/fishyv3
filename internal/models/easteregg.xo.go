@@ -173,15 +173,14 @@ func EasterEggByID(db XODB, id int) (*EasterEgg, error) {
 
 	// run query
 	XOLog(sqlstr, id)
-	ee := EasterEgg{
-		_exists: true,
-	}
+	ee := EasterEgg{}
 
 	err = db.QueryRow(sqlstr, id).Scan(&ee.ID, &ee.User, &ee.EasterEgg, &ee.Amt)
 	if err != nil {
-		return nil, err
+		return &ee, err
 	}
 
+	ee._exists = true
 	return &ee, nil
 }
 
@@ -199,14 +198,13 @@ func EasterEggByUserEasterEgg(db XODB, user string, easterEgg EasterEggType) (*E
 
 	// run query
 	XOLog(sqlstr, user, easterEgg)
-	ee := EasterEgg{
-		_exists: true,
-	}
+	ee := EasterEgg{}
 
 	err = db.QueryRow(sqlstr, user, easterEgg).Scan(&ee.ID, &ee.User, &ee.EasterEgg, &ee.Amt)
 	if err != nil {
-		return nil, err
+		return &ee, err
 	}
 
+	ee._exists = true
 	return &ee, nil
 }
