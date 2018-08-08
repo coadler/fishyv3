@@ -1,5 +1,15 @@
 #!/bin/bash
 
-rm -rf internal/models/*.xo.go
+# make pushd and popd silent
+pushd () {
+    command pushd "$@" > /dev/null
+}
 
-xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -o internal/models/ --template-path internal/models/templates/
+popd () {
+    command popd "$@" > /dev/null
+}
+
+pushd internal/
+    rm -rf models/*.xo.go
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -o models/ --template-path models/templates/
+popd
