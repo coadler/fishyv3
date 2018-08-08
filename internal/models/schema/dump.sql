@@ -307,13 +307,28 @@ CREATE TABLE public.location_density (
 ALTER TABLE public.location_density OWNER TO colinadler;
 
 --
+-- Name: owned_items_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+--
+
+CREATE SEQUENCE public.owned_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.owned_items_id_seq OWNER TO colinadler;
+
+--
 -- Name: owned_items; Type: TABLE; Schema: public; Owner: colinadler
 --
 
 CREATE TABLE public.owned_items (
     "user" text NOT NULL,
     item public.item NOT NULL,
-    tier integer NOT NULL
+    tier integer NOT NULL,
+    id integer DEFAULT nextval('public.owned_items_id_seq'::regclass) NOT NULL
 );
 
 
@@ -409,7 +424,7 @@ COPY public.location_density ("user", lake, river, ocean, location) FROM stdin;
 -- Data for Name: owned_items; Type: TABLE DATA; Schema: public; Owner: colinadler
 --
 
-COPY public.owned_items ("user", item, tier) FROM stdin;
+COPY public.owned_items ("user", item, tier, id) FROM stdin;
 \.
 
 
@@ -446,6 +461,13 @@ SELECT pg_catalog.setval('public.global_rankings_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('public.guild_rankings_id_seq', 1, false);
+
+
+--
+-- Name: owned_items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+--
+
+SELECT pg_catalog.setval('public.owned_items_id_seq', 1, false);
 
 
 --
@@ -510,6 +532,14 @@ ALTER TABLE ONLY public.bait_inventory
 
 ALTER TABLE ONLY public.location_density
     ADD CONSTRAINT location_density_pkey PRIMARY KEY ("user");
+
+
+--
+-- Name: owned_items owned_items_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+--
+
+ALTER TABLE ONLY public.owned_items
+    ADD CONSTRAINT owned_items_pkey PRIMARY KEY (id);
 
 
 --

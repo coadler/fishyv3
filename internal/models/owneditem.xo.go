@@ -12,6 +12,7 @@ type OwnedItem struct {
 	User string `json:"user"` // user
 	Item Item   `json:"item"` // item
 	Tier int    `json:"tier"` // tier
+	ID   int    `json:"id"`   // id
 
 	// xo fields
 	_exists, _deleted bool
@@ -38,14 +39,14 @@ func (oi *OwnedItem) Insert(db XODB) error {
 
 	// sql insert query, primary key must be provided
 	const sqlstr = `INSERT INTO public.owned_items (` +
-		`"user", "item", "tier"` +
+		`"user", "item", "tier", "id"` +
 		`) VALUES (` +
-		`$1, $2, $3` +
+		`$1, $2, $3, $4` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, oi.User, oi.Item, oi.Tier)
-	err = db.QueryRow(sqlstr, oi.User, oi.Item, oi.Tier).Scan(&oi.User)
+	XOLog(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
+	err = db.QueryRow(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID).Scan(&oi.ID)
 	if err != nil {
 		return err
 	}
@@ -72,14 +73,14 @@ func (oi *OwnedItem) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.owned_items SET (` +
-		`"item", "tier"` +
+		`"user", "item", "tier"` +
 		`) = ( ` +
-		`$1, $2` +
-		`) WHERE "user" = $3`
+		`$1, $2, $3` +
+		`) WHERE "id" = $4`
 
 	// run query
-	XOLog(sqlstr, oi.Item, oi.Tier, oi.User)
-	_, err = db.Exec(sqlstr, oi.Item, oi.Tier, oi.User)
+	XOLog(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
+	_, err = db.Exec(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
 	return err
 }
 
@@ -105,18 +106,18 @@ func (oi *OwnedItem) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.owned_items (` +
-		`"user", "item", "tier"` +
+		`"user", "item", "tier", "id"` +
 		`) VALUES (` +
-		`$1, $2, $3` +
-		`) ON CONFLICT ("user") DO UPDATE SET (` +
-		`"user", "item", "tier"` +
+		`$1, $2, $3, $4` +
+		`) ON CONFLICT ("id") DO UPDATE SET (` +
+		`"user", "item", "tier", "id"` +
 		`) = (` +
-		`EXCLUDED."user", EXCLUDED."item", EXCLUDED."tier"` +
+		`EXCLUDED."user", EXCLUDED."item", EXCLUDED."tier", EXCLUDED."id"` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, oi.User, oi.Item, oi.Tier)
-	_, err = db.Exec(sqlstr, oi.User, oi.Item, oi.Tier)
+	XOLog(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
+	_, err = db.Exec(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
 	if err != nil {
 		return err
 	}
@@ -142,11 +143,11 @@ func (oi *OwnedItem) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM public.owned_items WHERE "user" = $1`
+	const sqlstr = `DELETE FROM public.owned_items WHERE "id" = $1`
 
 	// run query
-	XOLog(sqlstr, oi.User)
-	_, err = db.Exec(sqlstr, oi.User)
+	XOLog(sqlstr, oi.ID)
+	_, err = db.Exec(sqlstr, oi.ID)
 	if err != nil {
 		return err
 	}
@@ -157,23 +158,23 @@ func (oi *OwnedItem) Delete(db XODB) error {
 	return nil
 }
 
-// OwnedItemByUser retrieves a row from 'public.owned_items' as a OwnedItem.
+// OwnedItemByID retrieves a row from 'public.owned_items' as a OwnedItem.
 //
 // Generated from index 'owned_items_pkey'.
-func OwnedItemByUser(db XODB, user string) (*OwnedItem, error) {
+func OwnedItemByID(db XODB, id int) (*OwnedItem, error) {
 	var err error
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`"user", "item", "tier" ` +
+		`"user", "item", "tier", "id" ` +
 		`FROM public.owned_items ` +
-		`WHERE "user" = $1`
+		`WHERE "id" = $1`
 
 	// run query
-	XOLog(sqlstr, user)
+	XOLog(sqlstr, id)
 	oi := OwnedItem{}
 
-	err = db.QueryRow(sqlstr, user).Scan(&oi.User, &oi.Item, &oi.Tier)
+	err = db.QueryRow(sqlstr, id).Scan(&oi.User, &oi.Item, &oi.Tier, &oi.ID)
 	if err != nil {
 		return &oi, err
 	}
@@ -190,7 +191,7 @@ func OwnedItemsByUser(db XODB, user string) ([]*OwnedItem, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`"user", "item", "tier" ` +
+		`"user", "item", "tier", "id" ` +
 		`FROM public.owned_items ` +
 		`WHERE "user" = $1`
 
@@ -210,7 +211,7 @@ func OwnedItemsByUser(db XODB, user string) ([]*OwnedItem, error) {
 		}
 
 		// scan
-		err = q.Scan(&oi.User, &oi.Item, &oi.Tier)
+		err = q.Scan(&oi.User, &oi.Item, &oi.Tier, &oi.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -229,7 +230,7 @@ func OwnedItemsByUserItem(db XODB, user string, item Item) ([]*OwnedItem, error)
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`"user", "item", "tier" ` +
+		`"user", "item", "tier", "id" ` +
 		`FROM public.owned_items ` +
 		`WHERE "user" = $1 AND "item" = $2`
 
@@ -249,7 +250,7 @@ func OwnedItemsByUserItem(db XODB, user string, item Item) ([]*OwnedItem, error)
 		}
 
 		// scan
-		err = q.Scan(&oi.User, &oi.Item, &oi.Tier)
+		err = q.Scan(&oi.User, &oi.Item, &oi.Tier, &oi.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -268,7 +269,7 @@ func OwnedItemByUserItemTier(db XODB, user string, item Item, tier int) (*OwnedI
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`"user", "item", "tier" ` +
+		`"user", "item", "tier", "id" ` +
 		`FROM public.owned_items ` +
 		`WHERE "user" = $1 AND "item" = $2 AND "tier" = $3`
 
@@ -276,7 +277,7 @@ func OwnedItemByUserItemTier(db XODB, user string, item Item, tier int) (*OwnedI
 	XOLog(sqlstr, user, item, tier)
 	oi := OwnedItem{}
 
-	err = db.QueryRow(sqlstr, user, item, tier).Scan(&oi.User, &oi.Item, &oi.Tier)
+	err = db.QueryRow(sqlstr, user, item, tier).Scan(&oi.User, &oi.Item, &oi.Tier, &oi.ID)
 	if err != nil {
 		return &oi, err
 	}
