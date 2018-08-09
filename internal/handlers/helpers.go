@@ -24,3 +24,21 @@ func inTxn(ctx context.Context, db *sql.DB, fn func(txn models.XODB) error) erro
 	}
 	return nil
 }
+
+func globalLeaderboardCount(db models.XODB) (int, error) {
+	c, err := models.GetGlobalLeaderboardCounts(db)
+	if err != nil {
+		return 0, liftDB(err, "failed to read global leaderboard count")
+	}
+
+	return int(c[0].Count), nil
+}
+
+func guildLeaderboardCount(db models.XODB) (int, error) {
+	c, err := models.GetGuildLeaderboardCounts(db)
+	if err != nil {
+		return 0, liftDB(err, "failed to read guild leaderboard count")
+	}
+
+	return int(c[0].Count), nil
+}

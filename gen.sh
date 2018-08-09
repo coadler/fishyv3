@@ -4,15 +4,40 @@
 pushd () { command pushd "$@" > /dev/null ; }
 popd () { command popd "$@" > /dev/null ; }
 
-pushd internal/
+pushd internal/models
     # without removing the templates first, xo_db.go.go will never be regenerated
-    rm -rf models/*.xo.go
-    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -o models/ --template-path models/templates/
-popd
+    rm -rf *.xo.go
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -o . --template-path templates/
 
-pushd internal/models/schema
-    pg_dump -h localhost \
-    -U colinadler \
-    -f dump.sql \
-    fishyv3
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -N -M -B -T GuildLeaderboardDesc -o . << ENDSQL
+    select "user", "score"
+    from guild_rankings
+    where guild = %%guild string%%
+    order by score desc
+    limit 10 offset %%offest int%%
+ENDSQL
+
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -N -M -B -T GuildLeaderboardCount -o . << ENDSQL
+    select count("id")
+    from guild_rankings
+ENDSQL
+
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -N -M -B -T GlobalLeaderboardDesc -o . << ENDSQL
+    select "user", "score"
+    from global_rankings 
+    order by score desc
+    limit 10 offset %%offset int%%
+ENDSQL
+
+    xo pgsql://colinadler@127.0.0.1/fishyv3?sslmode=disable -N -M -B -T GlobalLeaderboardCount -o . << ENDSQL
+    select count("user")
+    from global_rankings
+ENDSQL
+
+    pushd schema
+        pg_dump -h localhost \
+        -U colinadler \
+        -f dump.sql \
+        fishyv3
+    popd
 popd
