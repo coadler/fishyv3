@@ -43,7 +43,7 @@ func (ld *LocationDensity) Insert(db XODB) error {
 		`"user", "lake", "river", "ocean", "location"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
-		`)`
+		`) RETURNING "user"`
 
 	// run query
 	XOLog(sqlstr, ld.User, ld.Lake, ld.River, ld.Ocean, ld.Location)

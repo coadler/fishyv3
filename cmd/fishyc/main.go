@@ -15,6 +15,7 @@ func main() {
 	}
 	c := pb.NewFishyClient(conn)
 
-	_, err = c.Unblacklist(context.TODO(), &pb.UnblacklistRequest{User: "105484726235607040"})
+	res, err := c.GetBaitTier(context.TODO(), &pb.GetBaitTierRequest{User: "122221539377676289"})
 	fmt.Println(err)
+	fmt.Println(*res)
 }

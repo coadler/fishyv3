@@ -42,7 +42,7 @@ func ({{ $short }} *{{ .Name }}) Insert(db XODB) error {
 		`{{ colnames .Fields }}` +
 		`) VALUES (` +
 		`{{ colvals .Fields }}` +
-		`)`
+		`) RETURNING {{ colname .PrimaryKey.Col }}`
 
 	// run query
 	XOLog(sqlstr, {{ fieldnames .Fields $short }})

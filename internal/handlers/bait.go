@@ -20,14 +20,20 @@ func (s *FishyServerImpl) BuyBait(ctx context.Context, req *pb.BuyBaitRequest) (
 
 // GetBaitTier handles the GRPC route for getting a user's current bait tier.
 func (s *FishyServerImpl) GetBaitTier(ctx context.Context, req *pb.GetBaitTierRequest) (res *pb.GetBaitTierResponse, _ error) {
-	inv, err := getBaitInv(ctx, req.User, s.db)
-	if err != nil {
-		return res, err
-	}
+	var tier pb.BaitTier
+	err := inTxn(ctx, s.db, func(txn models.XODB) error {
+		inv, err := getBaitInv(ctx, req.User, txn)
+		if err != nil {
+			return err
+		}
+
+		tier = converter.FromDBBaitTier(inv.Current)
+		return nil
+	})
 
 	return &pb.GetBaitTierResponse{
-		Tier: converter.FromDBBaitTier(inv.Current),
-	}, nil
+		Tier: tier,
+	}, err
 }
 
 // SetBaitTier handles the GRPC route for setting a user's current bait tier.
@@ -70,14 +76,13 @@ func getBaitInv(ctx context.Context, user string, db models.XODB) (inv *models.B
 			return inv, liftDB(err, "failed to get bait inventory")
 		}
 
-		// owned := &models.OwnedItem{
-		// 	User: user,
-		// 	Item: models.ItemBait,
-		// 	Tier: converter.FromPBBaitTier(pb.BaitTier_T1),
-		// }
-		// if err := owned.Save(db); err != nil {
-		// 	return inv, liftDB(err, "failed to insert owned item")
-		// }
+		if err := (&models.OwnedItem{
+			User: user,
+			Item: models.ItemBait,
+			Tier: converter.FromPBBaitTier(pb.BaitTier_T1),
+		}).Save(db); err != nil {
+			return inv, liftDB(err, "failed to insert owned item")
+		}
 
 		*inv = models.BaitInventory{
 			User:    user,

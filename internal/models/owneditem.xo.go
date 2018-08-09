@@ -37,16 +37,16 @@ func (oi *OwnedItem) Insert(db XODB) error {
 		return errors.New("insert failed: already exists")
 	}
 
-	// sql insert query, primary key must be provided
+	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.owned_items (` +
-		`"user", "item", "tier", "id"` +
+		`"user", "item", "tier"` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
-		`)`
+		`$1, $2, $3` +
+		`) RETURNING "id"`
 
 	// run query
-	XOLog(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID)
-	err = db.QueryRow(sqlstr, oi.User, oi.Item, oi.Tier, oi.ID).Scan(&oi.ID)
+	XOLog(sqlstr, oi.User, oi.Item, oi.Tier)
+	err = db.QueryRow(sqlstr, oi.User, oi.Item, oi.Tier).Scan(&oi.ID)
 	if err != nil {
 		return err
 	}

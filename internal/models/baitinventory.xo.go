@@ -46,7 +46,7 @@ func (bi *BaitInventory) Insert(db XODB) error {
 		`"user", "tier_1", "tier_2", "tier_3", "tier_4", "tier_5", "current", "gathering"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
-		`)`
+		`) RETURNING "user"`
 
 	// run query
 	XOLog(sqlstr, bi.User, bi.Tier1, bi.Tier2, bi.Tier3, bi.Tier4, bi.Tier5, bi.Current, bi.Gathering)

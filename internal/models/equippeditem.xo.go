@@ -44,7 +44,7 @@ func (ei *EquippedItem) Insert(db XODB) error {
 		`"user", "bait", "rod", "hook", "vehicle", "bait_box"` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6` +
-		`)`
+		`) RETURNING "user"`
 
 	// run query
 	XOLog(sqlstr, ei.User, ei.Bait, ei.Rod, ei.Hook, ei.Vehicle, ei.BaitBox)

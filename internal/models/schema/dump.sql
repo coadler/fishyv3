@@ -307,6 +307,20 @@ CREATE TABLE public.location_density (
 ALTER TABLE public.location_density OWNER TO colinadler;
 
 --
+-- Name: owned_items; Type: TABLE; Schema: public; Owner: colinadler
+--
+
+CREATE TABLE public.owned_items (
+    "user" text NOT NULL,
+    item public.item NOT NULL,
+    tier integer NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.owned_items OWNER TO colinadler;
+
+--
 -- Name: owned_items_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
 --
 
@@ -321,18 +335,11 @@ CREATE SEQUENCE public.owned_items_id_seq
 ALTER TABLE public.owned_items_id_seq OWNER TO colinadler;
 
 --
--- Name: owned_items; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: owned_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
 --
 
-CREATE TABLE public.owned_items (
-    "user" text NOT NULL,
-    item public.item NOT NULL,
-    tier integer NOT NULL,
-    id integer DEFAULT nextval('public.owned_items_id_seq'::regclass) NOT NULL
-);
+ALTER SEQUENCE public.owned_items_id_seq OWNED BY public.owned_items.id;
 
-
-ALTER TABLE public.owned_items OWNER TO colinadler;
 
 --
 -- Name: blacklist id; Type: DEFAULT; Schema: public; Owner: colinadler
@@ -356,10 +363,18 @@ ALTER TABLE ONLY public.guild_rankings ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
+-- Name: owned_items id; Type: DEFAULT; Schema: public; Owner: colinadler
+--
+
+ALTER TABLE ONLY public.owned_items ALTER COLUMN id SET DEFAULT nextval('public.owned_items_id_seq'::regclass);
+
+
+--
 -- Data for Name: bait_inventory; Type: TABLE DATA; Schema: public; Owner: colinadler
 --
 
 COPY public.bait_inventory ("user", tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering) FROM stdin;
+105484726235607040	0	0	0	0	0	1	f
 \.
 
 
@@ -425,6 +440,7 @@ COPY public.location_density ("user", lake, river, ocean, location) FROM stdin;
 --
 
 COPY public.owned_items ("user", item, tier, id) FROM stdin;
+105484726235607040	bait	0	0
 \.
 
 
