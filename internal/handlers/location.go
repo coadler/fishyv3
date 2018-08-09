@@ -12,61 +12,47 @@ import (
 )
 
 func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (res *pb.GetLocationResponse, _ error) {
-	// this could be cleaned up into a helper since it is going to be repeated a lot
-	// we never have a guarantee something exists and can't fail if it doesn't
-	locD, err := models.LocationDensityByUser(s.db, req.User)
-	if err != nil {
-		if errors.Cause(err) != sql.ErrNoRows {
-			return res, liftDB(err, "failed to read location density by user")
-		}
-
-		locD = &models.LocationDensity{
-			User:     req.User,
-			Lake:     100,
-			River:    100,
-			Ocean:    100,
-			Location: models.LocationLake,
-		}
-
-		err = inTxn(ctx, s.db, func(txn models.XODB) error {
-			return liftDB(
-				locD.Save(txn),
-				"failed to save location",
-			)
-		})
+	err := inTxn(ctx, s.db, func(txn models.XODB) error {
+		locD, err := getLocDen(ctx, req.User, txn)
 		if err != nil {
-			return res, err
+			return err
 		}
 
-	}
+		res.Location = converter.FromDBLocation(locD.Location)
+		return nil
+	})
 
-	return &pb.GetLocationResponse{
-		Location: converter.FromDBLocation(locD.Location),
-	}, nil
+	return res, err
 }
 
 func (s *FishyServerImpl) SetLocation(ctx context.Context, req *pb.SetLocationRequest) (res *pb.SetLocationResponse, _ error) {
-	locD, err := models.LocationDensityByUser(s.db, req.User)
-	if err != nil {
-		if errors.Cause(err) != sql.ErrNoRows {
-			return res, liftDB(err, "failed to read location density by user")
+	return res, inTxn(ctx, s.db, func(txn models.XODB) error {
+		locD, err := getLocDen(ctx, req.User, txn)
+		if err != nil {
+			return err
 		}
 
-		locD = &models.LocationDensity{
-			User:  req.User,
+		locD.Location = converter.FromPBLocation(req.Location)
+		return liftDB(err, "failed to save location density")
+	})
+}
+
+func getLocDen(ctx context.Context, user string, db models.XODB) (*models.LocationDensity, error) {
+	locDen, err := models.LocationDensityByUser(db, user)
+	if err != nil {
+		if errors.Cause(err) != sql.ErrNoRows {
+			return locDen, liftDB(err, "failed to read location density by user")
+		}
+
+		*locDen = models.LocationDensity{
+			User:  user,
 			Lake:  100,
 			River: 100,
 			Ocean: 100,
 		}
+
+		return locDen, liftDB(locDen.Save(db), "failed to save location density")
 	}
 
-	locD.Location = converter.FromPBLocation(req.Location)
-	err = inTxn(ctx, s.db, func(txn models.XODB) error {
-		return liftDB(
-			locD.Save(txn),
-			"failed to save location",
-		)
-	})
-
-	return res, err
+	return locDen, nil
 }

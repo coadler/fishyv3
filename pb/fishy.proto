@@ -21,7 +21,9 @@ service Fishy {
 
     rpc CheckGatherBait (CheckGatherBaitRequest) returns (CheckGatherBaitResponse) {}
 
-    rpc Leaderboard (LeaderboardRequest) returns (LeaderboardResponse) {}
+    rpc GlobalLeaderboard (GlobalLeaderboardRequest) returns (LeaderboardResponse) {}
+
+    rpc GuildLeaderboard (GuildLeaderboardRequest) returns (LeaderboardResponse) {}
 
     rpc CheckTime(CheckTimeRequest) returns (CheckTimeResponse) {}
 
@@ -125,12 +127,13 @@ message CheckGatherBaitResponse {
     int32 remaining = 1; // minutes left
 }
 
-message LeaderboardRequest {
-    bool global = 1;
-    int32 page = 2;
-    string user = 3;
-    string guild = 4;
-    string guild_name = 5;
+message GlobalLeaderboardRequest {
+    int32 page = 1;
+}
+
+message GuildLeaderboardRequest {
+    int32 page = 1;
+    string guild = 2;
 }
 
 message LeaderboardResponse {
