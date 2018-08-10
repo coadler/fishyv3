@@ -133,7 +133,7 @@ message GlobalLeaderboardRequest {
 }
 
 message GuildLeaderboardRequest {
-    int32 page = 1; 
+    int32 page = 1;
     string guild = 2;
 }
 
