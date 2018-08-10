@@ -95,8 +95,9 @@ message SetLocationRequest {
 message SetLocationResponse {}
 
 message BuyItemRequest {
-    Item item = 1;
-    int32 tier = 2;
+    string user = 1;
+    Item item = 2;
+    int32 tier = 3;
 }
 
 message BuyItemResponse {}
@@ -132,7 +133,7 @@ message GlobalLeaderboardRequest {
 }
 
 message GuildLeaderboardRequest {
-    int32 page = 1;
+    int32 page = 1; 
     string guild = 2;
 }
 

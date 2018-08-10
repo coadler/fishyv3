@@ -9,6 +9,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var (
+	ErrGatheringBait = status.Error(codes.FailedPrecondition, "user is currently gathering bait")
+)
+
 func liftDB(err error, msg string) error {
 	if err == nil {
 		return nil

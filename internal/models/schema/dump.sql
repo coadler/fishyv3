@@ -83,8 +83,8 @@ CREATE TABLE public.bait_inventory (
     tier_3 integer NOT NULL,
     tier_4 integer NOT NULL,
     tier_5 integer NOT NULL,
-    current integer NOT NULL,
-    gathering boolean NOT NULL
+    current integer DEFAULT 1 NOT NULL,
+    gathering timestamp with time zone NOT NULL
 );
 
 
@@ -374,8 +374,7 @@ ALTER TABLE ONLY public.owned_items ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 COPY public.bait_inventory ("user", tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering) FROM stdin;
-105484726235607040	0	0	0	0	0	1	f
-122221539377676289	0	0	0	0	0	1	f
+320896491596283906	0	0	0	0	0	1	2018-08-10 07:39:25.967822-04
 \.
 
 
@@ -523,6 +522,7 @@ COPY public.location_density ("user", lake, river, ocean, location) FROM stdin;
 COPY public.owned_items ("user", item, tier, id) FROM stdin;
 105484726235607040	bait	0	0
 122221539377676289	bait	0	1
+320896491596283906	bait	0	5
 \.
 
 
@@ -565,7 +565,7 @@ SELECT pg_catalog.setval('public.guild_rankings_id_seq', 80, true);
 -- Name: owned_items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
 --
 
-SELECT pg_catalog.setval('public.owned_items_id_seq', 1, true);
+SELECT pg_catalog.setval('public.owned_items_id_seq', 5, true);
 
 
 --

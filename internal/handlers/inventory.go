@@ -3,6 +3,8 @@ package fishyv3
 import (
 	"context"
 
+	"github.com/coadler/fishyv3/internal/converter"
+	"github.com/coadler/fishyv3/internal/models"
 	"github.com/coadler/fishyv3/pb"
 )
 
@@ -53,17 +55,17 @@ func (s *FishyServerImpl) SellFish(ctx context.Context, req *pb.SellFishRequest)
 }
 
 func (s *FishyServerImpl) GetBaitInventory(ctx context.Context, req *pb.GetBaitInventoryRequest) (*pb.GetBaitInventoryResponse, error) {
+	var inv *models.BaitInventory
+	err := inTxn(ctx, s.db, func(txn models.XODB) (err error) {
+		inv, err = getBaitInv(ctx, txn, req.User, true)
+		return err
+	})
+
 	return &pb.GetBaitInventoryResponse{
 		MaxBait:      100,
 		CurrentCount: 33,
-		Bait: &pb.BaitInventory{
-			T1: 13,
-			T2: 5,
-			T3: 5,
-			T4: 5,
-			T5: 5,
-		},
-		CurrentTier: 1,
-		BaitboxTier: 3,
-	}, nil
+		Bait:         converter.FromDBBaitInventory(inv),
+		CurrentTier:  int32(inv.Current),
+		BaitboxTier:  3,
+	}, err
 }

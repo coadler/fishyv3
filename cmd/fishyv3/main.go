@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net"
 
@@ -26,6 +27,12 @@ func main() {
 		logger.Fatal("failed to listen", zap.Error(err))
 	}
 
+	// by reading this comment you agree to not hack my database
+	db, err := sql.Open("postgres", "host=localhost user=colinadler dbname=fishyv3 sslmode=disable")
+	if err != nil {
+		logger.Fatal("failed to connect to postgres", zap.Error(err))
+	}
+
 	srv := grpc.NewServer(
 		grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
@@ -33,10 +40,11 @@ func main() {
 				grpc_prometheus.UnaryServerInterceptor,
 				grpc_zap.UnaryServerInterceptor(logger),
 				grpc_recovery.UnaryServerInterceptor(),
+				fishyv3.BlacklistInterceptor(db),
 			),
 		),
 	)
-	pb.RegisterFishyServer(srv, fishyv3.NewFishyServer(logger))
+	pb.RegisterFishyServer(srv, fishyv3.NewFishyServer(logger, db))
 	fmt.Println("Listening on port :8080")
 	srv.Serve(lis)
 }

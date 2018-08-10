@@ -41,3 +41,7 @@ ENDSQL
         fishyv3
     popd
 popd
+
+pushd pb
+    protoc --gogofaster_out=plugins=grpc:. *.proto
+popd

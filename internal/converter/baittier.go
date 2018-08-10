@@ -3,8 +3,19 @@ package converter
 import (
 	"fmt"
 
+	"github.com/coadler/fishyv3/internal/models"
 	"github.com/coadler/fishyv3/pb"
 )
+
+func FromDBBaitInventory(inv *models.BaitInventory) *pb.BaitInventory {
+	return &pb.BaitInventory{
+		T1: int32(inv.Tier1),
+		T2: int32(inv.Tier2),
+		T3: int32(inv.Tier3),
+		T4: int32(inv.Tier4),
+		T5: int32(inv.Tier5),
+	}
+}
 
 func FromDBBaitTier(tier int) pb.BaitTier {
 	switch tier {

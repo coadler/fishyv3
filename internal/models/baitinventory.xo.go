@@ -5,18 +5,19 @@ package models
 
 import (
 	"errors"
+	"time"
 )
 
 // BaitInventory represents a row from 'public.bait_inventory'.
 type BaitInventory struct {
-	User      string `json:"user"`      // user
-	Tier1     int    `json:"tier_1"`    // tier_1
-	Tier2     int    `json:"tier_2"`    // tier_2
-	Tier3     int    `json:"tier_3"`    // tier_3
-	Tier4     int    `json:"tier_4"`    // tier_4
-	Tier5     int    `json:"tier_5"`    // tier_5
-	Current   int    `json:"current"`   // current
-	Gathering bool   `json:"gathering"` // gathering
+	User      string    `json:"user"`      // user
+	Tier1     int       `json:"tier_1"`    // tier_1
+	Tier2     int       `json:"tier_2"`    // tier_2
+	Tier3     int       `json:"tier_3"`    // tier_3
+	Tier4     int       `json:"tier_4"`    // tier_4
+	Tier5     int       `json:"tier_5"`    // tier_5
+	Current   int       `json:"current"`   // current
+	Gathering time.Time `json:"gathering"` // gathering
 
 	// xo fields
 	_exists, _deleted bool

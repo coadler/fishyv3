@@ -24,13 +24,7 @@ type FishyServerImpl struct {
 var _ pb.FishyServer = &FishyServerImpl{}
 
 // NewFishyServer returns an implementation of FishyServer.
-func NewFishyServer(logger *zap.Logger) *FishyServerImpl {
-	// by reading this comment you agree to not hack my database
-	db, err := sql.Open("postgres", "host=localhost user=colinadler dbname=fishyv3 sslmode=disable")
-	if err != nil {
-		logger.Fatal("failed to connect to postgres", zap.Error(err))
-	}
-
+func NewFishyServer(logger *zap.Logger, db *sql.DB) *FishyServerImpl {
 	return &FishyServerImpl{
 		logger,
 		db,
