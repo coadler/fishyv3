@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.3
--- Dumped by pg_dump version 10.3
+-- Dumped from database version 10.5
+-- Dumped by pg_dump version 10.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -521,7 +521,7 @@ ALTER TABLE ONLY public.owned_items ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 COPY public.bait_inventory ("user", tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering) FROM stdin;
-320896491596283906	0	0	0	0	0	1	2018-08-10 07:39:25.967822-04
+320896491596283906	0	0	0	0	0	1	2018-08-10 06:39:25.967822-05
 \.
 
 
