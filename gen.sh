@@ -34,6 +34,11 @@ ENDSQL
     from global_rankings
 ENDSQL
 
+    xo pgsql://colin@127.0.0.1/fishyv3?sslmode=disable -N -M -B -T AllTiers -o . << ENDSQL
+    select *
+    from tiers
+ENDSQL
+
     pushd schema
         pg_dump -h localhost \
         -U colin \

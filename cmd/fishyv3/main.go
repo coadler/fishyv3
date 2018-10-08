@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// by reading this comment you agree to not hack my database
-	db, err := sql.Open("postgres", "host=localhost user=colinadler dbname=fishyv3 sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost user=colin dbname=fishyv3 sslmode=disable")
 	if err != nil {
 		logger.Fatal("failed to connect to postgres", zap.Error(err))
 	}

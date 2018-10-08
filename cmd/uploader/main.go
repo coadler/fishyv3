@@ -2,62 +2,56 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 
+	"github.com/coadler/fishyv3/internal/models"
 	_ "github.com/lib/pq"
-
 	"go.uber.org/zap"
 )
 
 func main() {
 	logger, _ := zap.NewDevelopment()
 	// by reading this comment you agree to not hack my database
-	db, err := sql.Open("postgres", "host=localhost user=colinadler dbname=fishyv3 sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost user=colin dbname=fishyv3 sslmode=disable")
 	if err != nil {
 		logger.Fatal("failed to connect to postgres", zap.Error(err))
 	}
 
+	fi, err := os.Open("/home/colin/go/src/github.com/coadler/fishyv3/data/secretstrings.json")
+	if err != nil {
+		logger.Fatal("failed to open item file", zap.Error(err))
+	}
+	defer fi.Close()
+
+	out, err := ioutil.ReadAll(fi)
+	if err != nil {
+		logger.Fatal("failed to read item file", zap.Error(err))
+	}
+
+	allEasterEggs := new(EasterEggData)
+	err = json.Unmarshal(out, allEasterEggs)
+	if err != nil {
+		logger.Fatal("failed to unmarshal easter egg file", zap.Error(err))
+	}
+
+	for i, e := range allEasterEggs.Invee {
+		secret := models.EasterEggString{
+			Data: e,
+			Order: i,
+			Type: models.EasterEggTypeNoRod,
+		}
+
+		err := secret.Insert(db)
+		if err != nil {
+			logger.Error("failed to insert secret string", zap.Error(err))
+			continue
+		}
+	}
 }
 
-type ItemData struct {
-	Bait []struct {
-		Name        string  `json:"name"`
-		ID          int     `json:"id"`
-		Tier        int     `json:"tier"`
-		Cost        int     `json:"cost"`
-		Effect      float64 `json:"effect"`
-		Description string  `json:"description"`
-	} `json:"bait"`
-	Rod []struct {
-		Name        string  `json:"name"`
-		ID          int     `json:"id"`
-		Tier        int     `json:"tier"`
-		Cost        int     `json:"cost"`
-		Effect      float64 `json:"effect"`
-		Description string  `json:"description"`
-	} `json:"rod"`
-	Hook []struct {
-		Name        string  `json:"name"`
-		ID          int     `json:"id"`
-		Tier        int     `json:"tier"`
-		Cost        int     `json:"cost"`
-		Effect      float64 `json:"effect,omitempty"`
-		Description string  `json:"description"`
-		Modifier    float64 `json:"modifier,omitempty"`
-	} `json:"hook"`
-	Vehicle []struct {
-		Name        string `json:"name"`
-		ID          int    `json:"id"`
-		Tier        int    `json:"tier"`
-		Cost        int    `json:"cost"`
-		Effect      int    `json:"effect"`
-		Description string `json:"description"`
-	} `json:"vehicle"`
-	BaitBox []struct {
-		Name        string `json:"name"`
-		ID          int    `json:"id"`
-		Tier        int    `json:"tier"`
-		Cost        int    `json:"cost"`
-		Effect      int    `json:"effect"`
-		Description string `json:"description"`
-	} `json:"bait_box"`
+// TrashData .....
+type EasterEggData struct {
+	Invee []string `json:"invee"`
 }

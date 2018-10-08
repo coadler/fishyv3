@@ -17,6 +17,7 @@ type Fish struct {
 	Image    string    `json:"image"`    // image
 	Location Location  `json:"location"` // location
 	Tier     int       `json:"tier"`     // tier
+	Name     string    `json:"name"`     // name
 
 	// xo fields
 	_exists, _deleted bool
@@ -43,14 +44,14 @@ func (f *Fish) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.fish (` +
-		`"low", "high", "time", "pun", "image", "location", "tier"` +
+		`"low", "high", "time", "pun", "image", "location", "tier", "name"` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7` +
+		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`) RETURNING "id"`
 
 	// run query
-	XOLog(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier)
-	err = db.QueryRow(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier).Scan(&f.ID)
+	XOLog(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name)
+	err = db.QueryRow(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name).Scan(&f.ID)
 	if err != nil {
 		return err
 	}
@@ -77,14 +78,14 @@ func (f *Fish) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.fish SET (` +
-		`"low", "high", "time", "pun", "image", "location", "tier"` +
+		`"low", "high", "time", "pun", "image", "location", "tier", "name"` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7` +
-		`) WHERE "id" = $8`
+		`$1, $2, $3, $4, $5, $6, $7, $8` +
+		`) WHERE "id" = $9`
 
 	// run query
-	XOLog(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.ID)
-	_, err = db.Exec(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.ID)
+	XOLog(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name, f.ID)
+	_, err = db.Exec(sqlstr, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name, f.ID)
 	return err
 }
 
@@ -110,18 +111,18 @@ func (f *Fish) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.fish (` +
-		`"id", "low", "high", "time", "pun", "image", "location", "tier"` +
+		`"id", "low", "high", "time", "pun", "image", "location", "tier", "name"` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) ON CONFLICT ("id") DO UPDATE SET (` +
-		`"id", "low", "high", "time", "pun", "image", "location", "tier"` +
+		`"id", "low", "high", "time", "pun", "image", "location", "tier", "name"` +
 		`) = (` +
-		`EXCLUDED."id", EXCLUDED."low", EXCLUDED."high", EXCLUDED."time", EXCLUDED."pun", EXCLUDED."image", EXCLUDED."location", EXCLUDED."tier"` +
+		`EXCLUDED."id", EXCLUDED."low", EXCLUDED."high", EXCLUDED."time", EXCLUDED."pun", EXCLUDED."image", EXCLUDED."location", EXCLUDED."tier", EXCLUDED."name"` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, f.ID, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier)
-	_, err = db.Exec(sqlstr, f.ID, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier)
+	XOLog(sqlstr, f.ID, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name)
+	_, err = db.Exec(sqlstr, f.ID, f.Low, f.High, f.Time, f.Pun, f.Image, f.Location, f.Tier, f.Name)
 	if err != nil {
 		return err
 	}
@@ -170,7 +171,7 @@ func FishByID(db XODB, id int) (*Fish, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`"id", "low", "high", "time", "pun", "image", "location", "tier" ` +
+		`"id", "low", "high", "time", "pun", "image", "location", "tier", "name" ` +
 		`FROM public.fish ` +
 		`WHERE "id" = $1`
 
@@ -178,7 +179,7 @@ func FishByID(db XODB, id int) (*Fish, error) {
 	XOLog(sqlstr, id)
 	f := Fish{}
 
-	err = db.QueryRow(sqlstr, id).Scan(&f.ID, &f.Low, &f.High, &f.Time, &f.Pun, &f.Image, &f.Location, &f.Tier)
+	err = db.QueryRow(sqlstr, id).Scan(&f.ID, &f.Low, &f.High, &f.Time, &f.Pun, &f.Image, &f.Location, &f.Tier, &f.Name)
 	if err != nil {
 		return &f, err
 	}

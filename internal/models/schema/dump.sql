@@ -34,7 +34,8 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 --
 
 CREATE TYPE public.easter_egg_type AS ENUM (
-    'no_rod'
+    'no_rod',
+    'no_hook'
 );
 
 
@@ -175,6 +176,42 @@ ALTER SEQUENCE public.blacklist_id_seq OWNED BY public.blacklist.id;
 
 
 --
+-- Name: easter_egg_strings; Type: TABLE; Schema: public; Owner: colin
+--
+
+CREATE TABLE public.easter_egg_strings (
+    id integer NOT NULL,
+    data text NOT NULL,
+    "order" integer NOT NULL,
+    type public.easter_egg_type NOT NULL
+);
+
+
+ALTER TABLE public.easter_egg_strings OWNER TO colin;
+
+--
+-- Name: easter_egg_strings_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
+--
+
+CREATE SEQUENCE public.easter_egg_strings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.easter_egg_strings_id_seq OWNER TO colin;
+
+--
+-- Name: easter_egg_strings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
+--
+
+ALTER SEQUENCE public.easter_egg_strings_id_seq OWNED BY public.easter_egg_strings.id;
+
+
+--
 -- Name: easter_eggs; Type: TABLE; Schema: public; Owner: colin
 --
 
@@ -238,7 +275,8 @@ CREATE TABLE public.fish (
     pun text NOT NULL,
     image text NOT NULL,
     location public.location NOT NULL,
-    tier integer NOT NULL
+    tier integer NOT NULL,
+    name text DEFAULT ''::text NOT NULL
 );
 
 
@@ -468,10 +506,29 @@ ALTER SEQUENCE public.owned_items_id_seq OWNED BY public.owned_items.id;
 
 
 --
+-- Name: tiers; Type: TABLE; Schema: public; Owner: colin
+--
+
+CREATE TABLE public.tiers (
+    tier integer NOT NULL,
+    required integer NOT NULL
+);
+
+
+ALTER TABLE public.tiers OWNER TO colin;
+
+--
 -- Name: blacklist id; Type: DEFAULT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.blacklist ALTER COLUMN id SET DEFAULT nextval('public.blacklist_id_seq'::regclass);
+
+
+--
+-- Name: easter_egg_strings id; Type: DEFAULT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.easter_egg_strings ALTER COLUMN id SET DEFAULT nextval('public.easter_egg_strings_id_seq'::regclass);
 
 
 --
@@ -535,6 +592,18 @@ COPY public.blacklist (id, "user") FROM stdin;
 
 
 --
+-- Data for Name: easter_egg_strings; Type: TABLE DATA; Schema: public; Owner: colin
+--
+
+COPY public.easter_egg_strings (id, data, "order", type) FROM stdin;
+1	You pretend to fish with an imaginary fishing rod\nThe other fishermen look at you in disgust. (*maybe you should buy a fishing rod*)	0	no_rod
+2	Your determination to catch a fish with your imaginary fishing rod starts to draw a crowd.\nWill you triumph?	1	no_rod
+3	The crowd begins to disperse, but your determination is higher than ever.	2	no_rod
+4	An old fisherman approaches you, and hands you a fishing rod and hook with great pity. *was this your plan all along?*\nYou gain a tier 1 rod and hook. Good job.	3	no_rod
+\.
+
+
+--
 -- Data for Name: easter_eggs; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
@@ -554,7 +623,76 @@ COPY public.equipped_items ("user", bait, rod, hook, vehicle, bait_box) FROM std
 -- Data for Name: fish; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
-COPY public.fish (id, low, high, "time", pun, image, location, tier) FROM stdin;
+COPY public.fish (id, low, high, "time", pun, image, location, tier, name) FROM stdin;
+39	2	9	both	Maybe you'll put it in a chili dish!	https://cdn.discordapp.com/attachments/288505799905378304/322970149395365888/Killifish.png	lake	1	Killifish
+40	3	10	night	I'm sure it will grow on you.	https://cdn.discordapp.com/attachments/288505799905378304/322970325463728138/Tadpole_HHD_Icon.png	lake	1	Tadpole
+41	6	15	morning	Watch those pinchers!	https://cdn.discordapp.com/attachments/288505799905378304/322970086220627968/Crawfish_HHD_Icon.png	lake	1	Crawfish
+42	14	33	both	It looks happy to see you!	https://cdn.discordapp.com/attachments/288505799905378304/322970062443249665/Chub_HHD_Icon.png	lake	1	Chub
+43	15	25	both	It could sure use a bath!	https://cdn.discordapp.com/attachments/288505799905378304/322970227476267010/Pond_Smelt_HHD_Icon.png	lake	1	Pond Smelt
+44	10	15	night	Hop to it, froggie!	https://cdn.discordapp.com/attachments/288505799905378304/322970118764363776/Frog_HHD_Icon.png	lake	2	Frog
+45	16	30	morning	I thought we were catching fish...	https://cdn.discordapp.com/attachments/288505799905378304/325397737409347585/Bullhead_HHD_Icon.png	lake	2	Bullhead
+46	32	70	both	You really seized the diem!	https://cdn.discordapp.com/attachments/288505799905378304/322970373073403904/Carp_HHD_Icon.png	lake	2	Carp
+47	22	69	both	Now You just need a small bass amp	https://cdn.discordapp.com/attachments/288505799905378304/325397730207727616/Smallmouth_Bass_HHD_Icon.png	lake	2	Smallmouth Bass
+48	100	160	both	Do you think it has 9 lives?	https://cdn.discordapp.com/attachments/288505799905378304/322973264982966272/Catfish_HHD_Icon.png	lake	3	Catfish
+49	35	61	morning	Well, it's pretty big...I guess...	https://cdn.discordapp.com/attachments/288505799905378304/322970157079330816/Largemouth_Bass_HHD_Icon.png	lake	3	Largemouth Bass
+50	10	25	both	Well, it's pretty big...I guess...	https://cdn.discordapp.com/attachments/288505799905378304/325396865027801089/Perch_HHD_Icon.png	lake	3	Perch
+51	30	51	night	LGBT friendly	https://cdn.discordapp.com/attachments/288505799905378304/322973486001684480/Rainbow_Trout_HHD_Icon.png	lake	3	Rainbow Trout
+52	210	370	morning	Caught with Sturgical precision	https://cdn.discordapp.com/attachments/288505799905378304/322975606977462274/unknown.png	lake	4	Sturgeon
+53	50	91	night	Can you spot him?	https://cdn.discordapp.com/attachments/288505799905378304/325396770156969996/Walleye_HHD_Icon.png	lake	4	Walleye
+54	76	140	both	A syntactician in principle, and parameter.	https://cdn.discordapp.com/attachments/288505799905378304/322975606977462274/unknown.png	lake	4	Lingcod
+55	6	9	both	Bar!	https://cdn.discordapp.com/attachments/288505799905378304/322975606977462274/unknown.png	lake	5	Foo
+56	122	152	morning	But where's the rest of the snake?	https://cdn.discordapp.com/attachments/288505799905378304/322970127874129920/Giant_Snakehead_HHD_Icon.png	lake	5	Giant Snakehead
+57	152	213	night	It ain't gettin' too far!	https://cdn.discordapp.com/attachments/288505799905378304/322970123663179777/Gar_HHD_Icon.png	lake	5	Gar
+58	5	9	both	What's it so bitter about?	https://cdn.discordapp.com/attachments/288505799905378304/322970349786365952/Bitterling_HHD_Icon.png	river	1	Bitterling
+59	5	15	night	You fresh, goby!	https://cdn.discordapp.com/attachments/288505799905378304/322970113567621121/Freshwater_Goby_HHD_Icon.png	river	1	Freshwater Goby
+60	15	40	both	What a crucial catch!	https://cdn.discordapp.com/attachments/288505799905378304/322970089693511680/Crucian_Carp_HHD_Icon.png	river	1	Crucian Carp
+61	10	40	morning	There's a lot in this ville!	https://cdn.discordapp.com/attachments/288505799905378304/322970365011689472/Bluegill_HHD_Icon.png	river	1	Bluegill
+62	10	30	both	I wonder if birds usually stand on it?	https://cdn.discordapp.com/attachments/288505799905378304/322970338306686977/Yellow_Perch_HHD_Icon.png	river	1	Yellow Perch
+63	2	5	morning	Wow, that's far out, man!	https://cdn.discordapp.com/attachments/288505799905378304/322970173743169546/Neon_Tetra_HHD_Icon.png	river	1	Neon Tetra
+64	25	110	night	It just needs a barbel saddle!	https://cdn.discordapp.com/attachments/288505799905378304/322969936915857409/Barbel_Steed_HHD_Icon.png	river	1	Barbel Steed
+65	10	21	morning	It should have eaten its spinach!	https://cdn.discordapp.com/attachments/288505799905378304/322970236741615616/Popeyed_Goldfish_HHD_Icon.png	river	2	Popeyed Goldfish
+66	2	8	morning	You gotta show off this puppy!	https://cdn.discordapp.com/attachments/288505799905378304/322970137311576067/Guppy_HHD_Icon.png	river	2	Guppy
+67	9	30	night	I'm smitten, crab!	https://cdn.discordapp.com/attachments/288505799905378304/322970160954867724/Mitten_Crab_HHD_Icon.png	river	2	Mitten Crab
+68	38	76	night	Things just got REAL!	https://cdn.discordapp.com/attachments/288505799905378304/322970102926540800/Eel_HHD_Icon.png	river	2	Eel
+69	15	31	both	Is that a lollipop in it's mouth?	https://cdn.discordapp.com/attachments/288505799905378304/322970321059708928/Sweetfish_HHD_Icon.png	river	2	Sweetfish
+70	64	86	both	Oh, that's slammin'!	https://cdn.discordapp.com/attachments/288505799905378304/322970265862668318/Salmon_HHD_Icon.png	river	2	Salmon
+71	33	122	morning	Spearfishing anyone?	https://cdn.discordapp.com/attachments/288505799905378304/322970188842795008/Pike_HHD_Icon.png	river	3	Pike
+72	5	18	night	Now where's its harp?	https://cdn.discordapp.com/attachments/288505799905378304/322969564902064139/Angelfish_HHD_Icon.png	river	3	Angelfish
+73	25	46	both	You can really shell it out!	https://cdn.discordapp.com/attachments/288505799905378304/322970299421294594/Soft-Shelled_Turtle_HHD_Icon.png	river	3	Soft-Shelled Turtle
+74	12	36	both	Or did it catch YOU?!	https://cdn.discordapp.com/attachments/288505799905378304/322970205275815937/Piranha_HHD_Icon.png	river	3	Piranha
+75	38	76	night	You remove the saddle...	https://cdn.discordapp.com/attachments/288505799905378304/322970259042598912/Saddled_Bichir_HHD_Icon.png	river	4	Saddled Bichir
+76	50	70	both	Can't play koi with you!	https://cdn.discordapp.com/attachments/288505799905378304/322970153065250817/Koi_HHD_Icon.png	river	4	Koi
+77	25	38	morning	Did you just hear a meow?	https://cdn.discordapp.com/attachments/288505799905378304/322975606977462274/unknown.png	river	4	Tiger Trout
+78	76	127	night	But where's its bow?	https://cdn.discordapp.com/attachments/288505799905378304/322969890669723658/Arowana_HHD_Icon.png	river	5	Arowana
+79	85	140	morning	You should make that your motto!	https://cdn.discordapp.com/attachments/288505799905378304/322970097843175426/Dorado_HHD_Icon.png	river	5	Dorado
+80	256	325	night	And it looks like it's in its prime-a!	https://cdn.discordapp.com/attachments/288505799905378304/322969795043655680/Arapaima_HHD_Icon.png	river	5	Arapaima
+81	130	190	morning	Your theory really paid off!	https://cdn.discordapp.com/attachments/288505799905378304/322970310938853379/Stringfish_HHD_Icon.png	river	5	Stringfish
+82	15	55	both	That's no horse...	https://cdn.discordapp.com/attachments/288505799905378304/322970144945209344/Horse_Mackerel_HHD_Icon.png	ocean	1	Horse Mackerel
+83	24	43	both	Favorite fish of American football players, hip-hop artists, and prepubescents everywhere.	https://cdn.discordapp.com/attachments/288505799905378304/322970094164770816/Dab_HHD_Icon.png	ocean	1	Dab
+84	50	74	both	Yes, you did!	https://cdn.discordapp.com/attachments/288505799905378304/322970304856981506/Squid_HHD_Icon.png	ocean	1	Squid
+85	26	61	morning	And that's not just hot air!	https://cdn.discordapp.com/attachments/288505799905378304/322970355125977088/Blowfish_HHD_Icon.png	ocean	1	Blowfish
+86	20	43	night	What are you? Make up your mind!	https://cdn.discordapp.com/attachments/288505799905378304/322970344509931521/Zebra_Turkeyfish_HHD_Icon.png	ocean	1	Zebra Turkeyfish
+87	38	61	both	What?! You again?!	https://cdn.discordapp.com/attachments/288505799905378304/322970277560582144/Sea_Bass_HHD_Icon.png	ocean	1	Sea Bass
+88	5	13	both	Who's laughing now?	https://cdn.discordapp.com/attachments/288505799905378304/322970068793294851/Clownfish_HHD_Icon.png	ocean	2	Clownfish
+89	1	2	morning	You didn't even use a net!	https://cdn.discordapp.com/attachments/288505799905378304/322970282878959626/Sea_Butterfly_HHD_Icon_1.png	ocean	2	Sea Butterfly
+90	18	35	both	You meant to, of course!	https://cdn.discordapp.com/attachments/288505799905378304/322970293389754378/Sea_Horse_HHD_Icon.png	ocean	2	Seahorse
+91	22	33	night	It was a simple operation, though!	https://cdn.discordapp.com/attachments/288505799905378304/322970315560976385/Surgeonfish_HHD_Icon.png	ocean	2	Surgeonfish
+92	10	22	both	Keep flying, fishy!	https://cdn.discordapp.com/attachments/288505799905378304/322970369168506883/Butterflyfish_HHD_Icon.png	ocean	2	Butterfly Fish
+93	76	127	both	In a romantic relationship with the Popeyed Goldfish.	https://cdn.discordapp.com/attachments/288505799905378304/322970185046949890/Olive_Flounder_HHD_Icon.png	ocean	2	Olive Flounder
+94	55	102	both	You just snapped it up!	https://cdn.discordapp.com/attachments/288505799905378304/322970251786584064/Red_Snapper_HHD_Icon.png	ocean	3	Red Snapper
+95	56	82	both	You'll have to use it to cut veggies!	https://cdn.discordapp.com/attachments/288505799905378304/322969944331517954/Barred_Knifejaw_HHD_Icon.png	ocean	3	Barred Knifejaw
+96	50	78	night	Thanks to your fishing tackle!	https://cdn.discordapp.com/attachments/288505799905378304/322970108064694273/Football_Fish_HHD_Icon.png	ocean	3	Football Fish
+97	85	189	both	No way! Deal!	https://cdn.discordapp.com/attachments/288505799905378304/322970165094514689/Moray_Eel_HHD_Icon.png	ocean	3	Moray Eel
+98	370	475	morning	And now it's stuck in my head!	https://cdn.discordapp.com/attachments/288505799905378304/322970332413689866/Tuna_HHD_Icon.png	ocean	3	Tuna
+99	150	199	night	My day is brighter already!	https://cdn.discordapp.com/attachments/288505799905378304/322970181271945217/Ocean_Sunfish_HHD_Icon.png	ocean	3	Ocean Sunfish
+100	1000	1420	both	Good, you needed a paddle!	https://cdn.discordapp.com/attachments/288505799905378304/322970177408991244/Oarfish_HHD_Icon.png	ocean	4	Oarfish
+101	340	678	morning	That made my day!	https://cdn.discordapp.com/attachments/288505799905378304/322970244366860289/Ray_HHD_Icon.png	ocean	4	Ray
+102	300	427	both	What a true darlin'!	https://cdn.discordapp.com/attachments/288505799905378304/322970359026679811/Blue_Marlin_HHD_Icon.png	ocean	4	Blue Marlin
+103	80	200	night	Vive la me!	https://cdn.discordapp.com/attachments/288505799905378304/322970169548996618/Napoleonfish_HHD_Icon.png	ocean	4	Napoleanfish
+104	180	246	night	Am I saying it right?	https://cdn.discordapp.com/attachments/288505799905378304/322970082231975938/Coelacanth_HHD_Icon.png	ocean	5	Coelcanth
+105	542	675	morning	You really nailed it!	https://cdn.discordapp.com/attachments/288505799905378304/322970141589635073/Hammerhead_Shark_HHD_Icon.png	ocean	5	Hammerhead Shark
+106	457	640	night	You’re going to need a bigger boat...	https://cdn.discordapp.com/attachments/288505799905378304/322970132341063682/Great_White_Shark_HHD_Icon.png	ocean	5	Great White Shark
+107	145	199	morning	And yet it didn't see you coming!	https://cdn.discordapp.com/attachments/288505799905378304/322970271705202688/Saw_Shark_HHD_Icon.png	ocean	5	Saw Shark
 \.
 
 
@@ -563,6 +701,135 @@ COPY public.fish (id, low, high, "time", pun, image, location, tier) FROM stdin;
 --
 
 COPY public.garbage (id, text, "user") FROM stdin;
+1	an old left boot.	ode
+2	an old (but somehow dry) right boot.	ode
+3	a stick carved into a point.	ode
+4	a vaguely human-shaped tangle of grass.	ode
+5	a waterlogged copy of E.T. for the Atari 2600.	Esja
+6	a soaked copy of "Fishing for Dummies".	Esja
+7	Saitama's swim trunks.	Esja
+8	a broken GoPro.	Esja
+9	your personal demons.	Esja
+10	some *very* soggy noodles.	Esja
+11	a perfectly functional Nokia phone.	Esja
+12	an empty bottle of Abraxo Industrial Grade Cleaner.	ode
+13	a ballpoint pen that doesn't open.	ode
+14	an old rusted bonesaw.	ode
+15	a perfectly spherical rock. How did you even catch that?	ode
+16	a deflated football.	Esja
+17	green eggs as well as ham.	Esja
+18	an unusual amount of WD40.	Esja
+19	an extended cut DVD of The Love Guru.	Esja
+20	Bill O'Reily's career.	Esja
+21	a fidget spinner that doesn't spin anymore.	ode
+22	a bucket of what looks and feels like spent uranium fuel rods.	ode
+23	a broken Mr. Meeseeks box.	unknown
+24	a piece of cardboard that has a face sharpied on it.	ode
+25	a fish disguised as garbage disguised as fish disguised as garbage.	Esja
+26	a mystical, glowing drop of water hanging on to the end of your hook.	unknown
+27	the inspiration to keep fishing. Go get em champ!	Esja
+28	a picture shipping thy and ode.	unknown
+29	a copy of Love Live on Blueray.	ode
+30	a 1GB flashdrive with the Sword Art Online opening on it.	Weeajew
+31	an empty garbage bag with the letters 'B-I-N-S-E-E' written on it in silver sharpie	ode
+32	a chicken plushy with a name tag that says 'David'.	Scarletto
+33	IT'S A HAND!!! Oh, it's just a rubber one.	Scarletto
+34	We Are Number One, but it's wet.	Scarletto
+35	a voucher for 10,000 credits. You throw it away, since you're really here for the passion of fishing.	Esja
+36	like thirty cats.	Esja
+37	a broken disk for Half-Life 3.	Rick
+38	a cuet tomatoe.	Kinoe
+39	a bag of soggy Cheetos. Don't try to eat that.	Silver Blues
+40	a sock bunched up inside a sock bunched up inside a sock...	Silver Blues
+41	half a bathtub. At least it's the half with the faucet...	Silver Blues
+42	a bottle with a message inside...	Rick
+43	someone's diary. They'd be glad you can't read its drenched pages.	Silver Blues
+44	a rainbow afro wig. Perhaps you can still wear it?	Silver Blues
+45	a slightly worse fishing pole.	Esja
+46	the American judicial system.	Esja
+47	a Club Penguin membership card.	Esja
+48	a 4 Strength, 4 Stam leather belt!	unknown
+49	a penny from the year you were born!	Rick
+50	a penny not from the year you were born. :(	Esja
+51	something that resembles Pandora's Jar	Rick
+52	a very tiny fisherman.	Esja
+53	someone else's fishing net.  Oops.	Esja
+54	a professional League of Legends team.	Esja
+55	a used copy of Windows ME.	Esja
+56	the stuff they use to pixelate hentai.	Esja
+57	a USB with 'Virus' written on it. Install now?	Rick
+58	someone else's grocery list.	Rick
+59	an unopened poptart.	Rick
+60	an English to Chinese dictionary.	Esja
+61	a statuette of a pink cow	Esja
+62	a popped floatie ring.	Rick
+63	an old Blockbuster card.	Esja
+64	[ERROR -- FISH NOT FOUND]	Esja
+65	a ticket to a lakers game.	Rick
+66	404 FISH NOT FOUND	Rick
+67	some broken piano keys.	Rick
+68	a list of rejected garbage ideas.	Esja
+69	a gooey wad of JuicyFruit.	Esja
+70	some kind of meta BS.	Rick
+71	an arrow to the knee.	Esja
+72	a baseball some kid hit towards you.  Lucky!	Esja
+73	a half-eaten Mars Bars.	Rick
+74	a plan for World Domination scribbled on a napkin.	Rick
+75	the flu.  Unfortunate. :(	Esja
+76	nothing.  We're all very disappointed.	Esja
+77	a whip. Wonder what it was used for?	Rick
+78	a dark matter fish.  It cancels out the other fish you would have caught.	Esja
+79	a paper clip, now your papers will be more organized.	Gatete
+80	a pair of headphones. You can hear the sound of the waves with it on!	Silver Blues
+81	a carpet. It might be a magical flying one, who knows...	Silver Blues
+82	te amasing gramar som peepol hab	Scarletto
+83	a rubber duck. Not a fish, but a duck!	Silver Blues
+84	a broken fishing rod. At least you still have yours.	xaanit
+85	a clock, could the time still be right?	xaanit
+86	a snorkel. Let's hope it's not still needed.	xaanit
+87	a camera. What pictures could be on it?	xaanit
+88	a swimsuit, who could have lost it?	xaanit
+89	a bouquet of flowers. A fishy secret admirer?	Silver Blues
+90	a stop sign. That won't stop you, though.	Silver Blues
+91	a lamp shade. Wear it on your head to fish.	Silver Blues
+92	a cloth hanger. It matches your hook!	Silver Blues
+93	a glowstick. Either the fish were scared, or having finny fun...	Silver Blues
+94	something repugnant from Davy Jones' Locker.	Draxx
+95	a busted pair of ear-buds.	TheDarkMysteryMan
+96	a piano key. Hopefully the rest of the piano isn't down there.	Silver Blues
+97	your car keys, what where they doing here?	nitrome
+98	a pair of broken sunglasses.	TheDarkMysteryMan
+99	a necklace made of bottle caps. It's actually pretty.	Silver Blues
+100	an entire body pillow. You wonder if it is still usable...	Silver Blues
+101	a way to find fish in the json based on time	ode
+102	my eye. Not my fault you're always so sexy!	saksophoneee
+103	some candy wrapped in clingfilm.. safe to eat?	Rick
+104	a pair of pants. ...Oops?	Silver Blues
+105	a perfume bottle. This is where they get the "ocean" fragrance.	Silver Blues
+106	golang	ode
+107	Pineapple Pizza	Zeniate
+108	a bag of air. Smells fresh!	Nico
+109	error #231. Your PC will shut down shortly.	Nico
+110	a backdoor trojan. We can see you...	Nico
+111	a new dimension! Oh wait no that's just a shard of glass.	Nico
+112	A 199/200 *pro genji* that needs healing.	Zeniate
+113	a book of the worst fanfiction you've ever read.	ViKomprenas
+114	a goose by mistake! RUN AWAY.	Silver Blues
+115	a guide titled "How to catch rarefish", too bad the water found it first.	Izuna Neko
+116	a pillow, but the fish don't want to sleep with you.	Izuna Neko
+117	a botter's guide to getting banned.	Izuna Neko
+118	an honest man's guide to getting rich. It says "stay honest".	Izuna Neko
+119	a one line if-statement.	ode
+120	a magikarp. it used splash and got away.	Izuna Neko
+121	an old, empty chest that's falling apart from years underwater.	Saederup
+122	Memedog. You suddenly understand how polluted this river is.	deatcoca
+123	a broken pokeball.	deatcoca
+124	a torned up Pokemon card.The name of the pokemon has long since disappeared.	deatcoca
+125	a master bait. Oh no! It's broken.	deatcoca
+126	a can of Surströmming.	deatcoca
+127	a banne.	deatcoca
+128	dead memes.	Saederup
+129	a dry seastar and a used sponge.	Saederup
 \.
 
 
@@ -675,6 +942,31 @@ COPY public.inventory ("user", fish, garbage, legendary, worth) FROM stdin;
 --
 
 COPY public.items (id, type, tier, price, effect, description) FROM stdin;
+6	bait	1	10	0	
+7	bait	2	25	0.05	
+8	bait	3	50	0.1	
+9	bait	4	75	0.2	
+10	bait	5	100	0.3	
+11	rod	1	500	0	The storeowner looks at you with pity. He walks over to a closet and rummages around for a bit. He comes back with a standard wooden fishing rod. It seems a bit beaten up, but it'll get the job done.
+12	rod	2	5000	0.05	One of the new fiberglass rods displayed on the shelf behind the storeowner. It's a slightly stronger and sturdier rod that seems like it will be able to handle some of the bigger fish.
+13	rod	3	10000	0.1	A rod kept inside a glass case. It's seems like it's made almost entierly out of carbon fiber and nearly unbreakable. Surely well worth the price.
+14	rod	4	25000	0.2	The storeowner looks at you for a long moment before reaching underneath the counter and pulling out a silvery-metal fishing rod. It seems out place being lit by the dingy yellow lamp above the counter. As it catches the light you can feel a certain radiance coming off of the cool metal surface.
+15	rod	5	50000	0.3	The storeowner seems like he doesn't hear you ask to see the new fishing rod. It's not until the last customer leaves before he motions you behind the counter. He leads you back into a room that has a faint purple glow in the center of an otherwise pitch black room. He turns on the light, but it makes little difference. Whatever is in the center of this room is absorbing all of the light...
+16	hook	1	100	0	A simple curved piece of metal with a pointy side. That's about all it needs to be, right?
+17	hook	2	1000	0.1	Three times the pointy sides, three times the catching power! (Disclaimer, not actually 3x)
+18	hook	3	2500	0.2	The fish would probably love the little feathery bits!
+19	hook	4	5000	0.3	
+20	hook	4	5000	0	
+21	hook	5	10000	0.4	
+22	vehicle	2	1000	50	Three times the pointy sides, three times the catching power! (Disclaimer, not actually 3x)
+23	vehicle	3	5000	100	The fish would probably love the little feathery bits!
+24	vehicle	4	15000	250	
+25	vehicle	5	100000	500	
+26	bait_box	1	100	25	
+27	bait_box	2	500	50	
+28	bait_box	3	1000	75	
+29	bait_box	4	2500	100	
+30	bait_box	5	5000	150	
 \.
 
 
@@ -698,6 +990,19 @@ COPY public.owned_items ("user", item, tier, id) FROM stdin;
 
 
 --
+-- Data for Name: tiers; Type: TABLE DATA; Schema: public; Owner: colin
+--
+
+COPY public.tiers (tier, required) FROM stdin;
+1	0
+2	50
+3	250
+4	1000
+5	5000
+\.
+
+
+--
 -- Name: bait_inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
@@ -712,6 +1017,13 @@ SELECT pg_catalog.setval('public.blacklist_id_seq', 7, true);
 
 
 --
+-- Name: easter_egg_strings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
+--
+
+SELECT pg_catalog.setval('public.easter_egg_strings_id_seq', 4, true);
+
+
+--
 -- Name: easter_eggs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
@@ -722,14 +1034,14 @@ SELECT pg_catalog.setval('public.easter_eggs_id_seq', 1, false);
 -- Name: fish_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
-SELECT pg_catalog.setval('public.fish_id_seq', 1, false);
+SELECT pg_catalog.setval('public.fish_id_seq', 107, true);
 
 
 --
 -- Name: garbage_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
-SELECT pg_catalog.setval('public.garbage_id_seq', 1, false);
+SELECT pg_catalog.setval('public.garbage_id_seq', 129, true);
 
 
 --
@@ -750,7 +1062,7 @@ SELECT pg_catalog.setval('public.guild_rankings_id_seq', 80, true);
 -- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
-SELECT pg_catalog.setval('public.items_id_seq', 1, false);
+SELECT pg_catalog.setval('public.items_id_seq', 30, true);
 
 
 --
@@ -774,6 +1086,14 @@ ALTER TABLE ONLY public.inventory
 
 ALTER TABLE ONLY public.blacklist
     ADD CONSTRAINT blacklist_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: easter_egg_strings easter_egg_strings_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.easter_egg_strings
+    ADD CONSTRAINT easter_egg_strings_pkey PRIMARY KEY (id);
 
 
 --
@@ -854,6 +1174,14 @@ ALTER TABLE ONLY public.location_density
 
 ALTER TABLE ONLY public.owned_items
     ADD CONSTRAINT owned_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tiers tiers_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.tiers
+    ADD CONSTRAINT tiers_pkey PRIMARY KEY (tier);
 
 
 --

@@ -16,11 +16,43 @@ import (
 
 // BuyBait handles the GRPC route for buying bait.
 func (s *FishyServerImpl) BuyBait(ctx context.Context, req *pb.BuyBaitRequest) (*pb.BuyBaitResponse, error) {
-	return &pb.BuyBaitResponse{}, nil
+	err := inTxn(ctx, s.db, func(txn models.XODB) error {
+		tier, err := userTier(txn, req.User)
+		if err != nil {
+			return liftDB(err, "failed to get user tier")
+		}
+
+		if req.Tier > pb.BaitTier(tier) {
+			return status.Error(codes.FailedPrecondition, "")
+		}
+
+		inv, err := models.BaitInventoryByUser(txn, req.User)
+		if err != nil {
+			return liftDB(err, "failed to get bait inventory")
+		}
+
+		amt := int(req.Amount)
+		switch req.Tier {
+		case pb.BaitTier_T1:
+			inv.Tier1 += amt
+		case pb.BaitTier_T2:
+			inv.Tier2 += amt
+		case pb.BaitTier_T3:
+			inv.Tier3 += amt
+		case pb.BaitTier_T4:
+			inv.Tier4 += amt
+		case pb.BaitTier_T5:
+			inv.Tier5 += amt
+		}
+
+		return liftDB(inv.Upsert(txn), "failed to upsert bait inventory")
+	})
+
+	return &pb.BuyBaitResponse{}, err
 }
 
 // GetBaitTier handles the GRPC route for getting a user's current bait tier.
-func (s *FishyServerImpl) GetBaitTier(ctx context.Context, req *pb.GetBaitTierRequest) (res *pb.GetBaitTierResponse, _ error) {
+func (s *FishyServerImpl) GetBaitTier(ctx context.Context, req *pb.GetBaitTierRequest) (*pb.GetBaitTierResponse, error) {
 	var tier pb.BaitTier
 	err := inTxn(ctx, s.db, func(txn models.XODB) error {
 		inv, err := getBaitInv(ctx, txn, req.User, false)
@@ -38,7 +70,7 @@ func (s *FishyServerImpl) GetBaitTier(ctx context.Context, req *pb.GetBaitTierRe
 }
 
 // SetBaitTier handles the GRPC route for setting a user's current bait tier.
-func (s *FishyServerImpl) SetBaitTier(ctx context.Context, req *pb.SetBaitTierRequest) (res *pb.SetBaitTierResponse, _ error) {
+func (s *FishyServerImpl) SetBaitTier(ctx context.Context, req *pb.SetBaitTierRequest) (*pb.SetBaitTierResponse, error) {
 	err := inTxn(ctx, s.db, func(txn models.XODB) error {
 		inv, err := getBaitInv(ctx, s.db, req.User, false)
 		if err != nil {
