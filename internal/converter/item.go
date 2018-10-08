@@ -5,34 +5,34 @@ import (
 	"github.com/coadler/fishyv3/pb"
 )
 
-func FromPBItem(item pb.Item) models.Item {
+func FromPBItem(item pb.Item) models.Itemtype {
 	switch item {
 	case pb.Item_BAIT:
-		return models.ItemBait
+		return models.ItemtypeBait
 	case pb.Item_BAITBOX:
-		return models.ItemBaitBox
+		return models.ItemtypeBaitBox
 	case pb.Item_HOOK:
-		return models.ItemHook
+		return models.ItemtypeHook
 	case pb.Item_ROD:
-		return models.ItemRod
+		return models.ItemtypeRod
 	case pb.Item_VEHICLE:
-		return models.ItemVehicle
+		return models.ItemtypeVehicle
 	default:
 		panic("invalid item " + item.String())
 	}
 }
 
-func FromDBItem(item models.Item) pb.Item {
+func FromDBItem(item models.Itemtype) pb.Item {
 	switch item {
-	case models.ItemBait:
+	case models.ItemtypeBait:
 		return pb.Item_BAIT
-	case models.ItemBaitBox:
+	case models.ItemtypeBaitBox:
 		return pb.Item_BAITBOX
-	case models.ItemHook:
+	case models.ItemtypeHook:
 		return pb.Item_HOOK
-	case models.ItemRod:
+	case models.ItemtypeRod:
 		return pb.Item_ROD
-	case models.ItemVehicle:
+	case models.ItemtypeVehicle:
 		return pb.Item_VEHICLE
 	default:
 		panic("invalid item " + item.String())

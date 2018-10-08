@@ -11,6 +11,10 @@ import (
 	"github.com/coadler/fishyv3/pb"
 )
 
+func (s *FishyServerImpl) Locations(ctx context.Context, req *pb.LocationsRequest) (res *pb.LocationsResponse, _ error) {
+	return nil, nil
+}
+
 func (s *FishyServerImpl) GetLocation(ctx context.Context, req *pb.GetLocationRequest) (res *pb.GetLocationResponse, _ error) {
 	err := inTxn(ctx, s.db, func(txn models.XODB) error {
 		locD, err := getLocDen(ctx, req.User, txn)

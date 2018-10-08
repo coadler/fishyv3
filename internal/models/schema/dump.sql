@@ -30,7 +30,7 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: easter_egg_type; Type: TYPE; Schema: public; Owner: colinadler
+-- Name: easter_egg_type; Type: TYPE; Schema: public; Owner: colin
 --
 
 CREATE TYPE public.easter_egg_type AS ENUM (
@@ -38,13 +38,13 @@ CREATE TYPE public.easter_egg_type AS ENUM (
 );
 
 
-ALTER TYPE public.easter_egg_type OWNER TO colinadler;
+ALTER TYPE public.easter_egg_type OWNER TO colin;
 
 --
--- Name: item; Type: TYPE; Schema: public; Owner: colinadler
+-- Name: itemtype; Type: TYPE; Schema: public; Owner: colin
 --
 
-CREATE TYPE public.item AS ENUM (
+CREATE TYPE public.itemtype AS ENUM (
     'bait',
     'rod',
     'hook',
@@ -53,10 +53,10 @@ CREATE TYPE public.item AS ENUM (
 );
 
 
-ALTER TYPE public.item OWNER TO colinadler;
+ALTER TYPE public.itemtype OWNER TO colin;
 
 --
--- Name: location; Type: TYPE; Schema: public; Owner: colinadler
+-- Name: location; Type: TYPE; Schema: public; Owner: colin
 --
 
 CREATE TYPE public.location AS ENUM (
@@ -66,14 +66,27 @@ CREATE TYPE public.location AS ENUM (
 );
 
 
-ALTER TYPE public.location OWNER TO colinadler;
+ALTER TYPE public.location OWNER TO colin;
+
+--
+-- Name: timeofday; Type: TYPE; Schema: public; Owner: colin
+--
+
+CREATE TYPE public.timeofday AS ENUM (
+    'both',
+    'morning',
+    'night'
+);
+
+
+ALTER TYPE public.timeofday OWNER TO colin;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: bait_inventory; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: bait_inventory; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.bait_inventory (
@@ -88,10 +101,10 @@ CREATE TABLE public.bait_inventory (
 );
 
 
-ALTER TABLE public.bait_inventory OWNER TO colinadler;
+ALTER TABLE public.bait_inventory OWNER TO colin;
 
 --
--- Name: inventory; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: inventory; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.inventory (
@@ -103,10 +116,10 @@ CREATE TABLE public.inventory (
 );
 
 
-ALTER TABLE public.inventory OWNER TO colinadler;
+ALTER TABLE public.inventory OWNER TO colin;
 
 --
--- Name: bait_inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: bait_inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.bait_inventory_id_seq
@@ -118,17 +131,17 @@ CREATE SEQUENCE public.bait_inventory_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.bait_inventory_id_seq OWNER TO colinadler;
+ALTER TABLE public.bait_inventory_id_seq OWNER TO colin;
 
 --
--- Name: bait_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: bait_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.bait_inventory_id_seq OWNED BY public.inventory."user";
 
 
 --
--- Name: blacklist; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: blacklist; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.blacklist (
@@ -137,10 +150,10 @@ CREATE TABLE public.blacklist (
 );
 
 
-ALTER TABLE public.blacklist OWNER TO colinadler;
+ALTER TABLE public.blacklist OWNER TO colin;
 
 --
--- Name: blacklist_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: blacklist_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.blacklist_id_seq
@@ -152,31 +165,31 @@ CREATE SEQUENCE public.blacklist_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.blacklist_id_seq OWNER TO colinadler;
+ALTER TABLE public.blacklist_id_seq OWNER TO colin;
 
 --
--- Name: blacklist_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: blacklist_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.blacklist_id_seq OWNED BY public.blacklist.id;
 
 
 --
--- Name: easter_eggs; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: easter_eggs; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.easter_eggs (
     id integer NOT NULL,
     "user" text NOT NULL,
     easter_egg public.easter_egg_type NOT NULL,
-    amt integer
+    amt integer NOT NULL
 );
 
 
-ALTER TABLE public.easter_eggs OWNER TO colinadler;
+ALTER TABLE public.easter_eggs OWNER TO colin;
 
 --
--- Name: easter_eggs_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: easter_eggs_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.easter_eggs_id_seq
@@ -188,17 +201,17 @@ CREATE SEQUENCE public.easter_eggs_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.easter_eggs_id_seq OWNER TO colinadler;
+ALTER TABLE public.easter_eggs_id_seq OWNER TO colin;
 
 --
--- Name: easter_eggs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: easter_eggs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.easter_eggs_id_seq OWNED BY public.easter_eggs.id;
 
 
 --
--- Name: equipped_items; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: equipped_items; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.equipped_items (
@@ -211,10 +224,85 @@ CREATE TABLE public.equipped_items (
 );
 
 
-ALTER TABLE public.equipped_items OWNER TO colinadler;
+ALTER TABLE public.equipped_items OWNER TO colin;
 
 --
--- Name: global_rankings; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: fish; Type: TABLE; Schema: public; Owner: colin
+--
+
+CREATE TABLE public.fish (
+    id integer NOT NULL,
+    low integer NOT NULL,
+    high integer NOT NULL,
+    "time" public.timeofday NOT NULL,
+    pun text NOT NULL,
+    image text NOT NULL,
+    location public.location NOT NULL,
+    tier integer NOT NULL
+);
+
+
+ALTER TABLE public.fish OWNER TO colin;
+
+--
+-- Name: fish_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
+--
+
+CREATE SEQUENCE public.fish_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.fish_id_seq OWNER TO colin;
+
+--
+-- Name: fish_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
+--
+
+ALTER SEQUENCE public.fish_id_seq OWNED BY public.fish.id;
+
+
+--
+-- Name: garbage; Type: TABLE; Schema: public; Owner: colin
+--
+
+CREATE TABLE public.garbage (
+    id integer NOT NULL,
+    text text NOT NULL,
+    "user" text NOT NULL
+);
+
+
+ALTER TABLE public.garbage OWNER TO colin;
+
+--
+-- Name: garbage_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
+--
+
+CREATE SEQUENCE public.garbage_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.garbage_id_seq OWNER TO colin;
+
+--
+-- Name: garbage_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
+--
+
+ALTER SEQUENCE public.garbage_id_seq OWNED BY public.garbage.id;
+
+
+--
+-- Name: global_rankings; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.global_rankings (
@@ -227,10 +315,10 @@ CREATE TABLE public.global_rankings (
 );
 
 
-ALTER TABLE public.global_rankings OWNER TO colinadler;
+ALTER TABLE public.global_rankings OWNER TO colin;
 
 --
--- Name: global_rankings_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: global_rankings_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.global_rankings_id_seq
@@ -242,17 +330,17 @@ CREATE SEQUENCE public.global_rankings_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.global_rankings_id_seq OWNER TO colinadler;
+ALTER TABLE public.global_rankings_id_seq OWNER TO colin;
 
 --
--- Name: global_rankings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: global_rankings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.global_rankings_id_seq OWNED BY public.global_rankings."user";
 
 
 --
--- Name: guild_rankings; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: guild_rankings; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.guild_rankings (
@@ -267,10 +355,10 @@ CREATE TABLE public.guild_rankings (
 );
 
 
-ALTER TABLE public.guild_rankings OWNER TO colinadler;
+ALTER TABLE public.guild_rankings OWNER TO colin;
 
 --
--- Name: guild_rankings_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: guild_rankings_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.guild_rankings_id_seq
@@ -282,17 +370,55 @@ CREATE SEQUENCE public.guild_rankings_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.guild_rankings_id_seq OWNER TO colinadler;
+ALTER TABLE public.guild_rankings_id_seq OWNER TO colin;
 
 --
--- Name: guild_rankings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: guild_rankings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.guild_rankings_id_seq OWNED BY public.guild_rankings.id;
 
 
 --
--- Name: location_density; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: items; Type: TABLE; Schema: public; Owner: colin
+--
+
+CREATE TABLE public.items (
+    id integer NOT NULL,
+    type public.itemtype NOT NULL,
+    tier integer NOT NULL,
+    price integer NOT NULL,
+    effect numeric NOT NULL,
+    description text NOT NULL
+);
+
+
+ALTER TABLE public.items OWNER TO colin;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
+--
+
+CREATE SEQUENCE public.items_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.items_id_seq OWNER TO colin;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
+--
+
+ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
+
+
+--
+-- Name: location_density; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.location_density (
@@ -304,24 +430,24 @@ CREATE TABLE public.location_density (
 );
 
 
-ALTER TABLE public.location_density OWNER TO colinadler;
+ALTER TABLE public.location_density OWNER TO colin;
 
 --
--- Name: owned_items; Type: TABLE; Schema: public; Owner: colinadler
+-- Name: owned_items; Type: TABLE; Schema: public; Owner: colin
 --
 
 CREATE TABLE public.owned_items (
     "user" text NOT NULL,
-    item public.item NOT NULL,
+    item public.itemtype NOT NULL,
     tier integer NOT NULL,
     id integer NOT NULL
 );
 
 
-ALTER TABLE public.owned_items OWNER TO colinadler;
+ALTER TABLE public.owned_items OWNER TO colin;
 
 --
--- Name: owned_items_id_seq; Type: SEQUENCE; Schema: public; Owner: colinadler
+-- Name: owned_items_id_seq; Type: SEQUENCE; Schema: public; Owner: colin
 --
 
 CREATE SEQUENCE public.owned_items_id_seq
@@ -332,45 +458,66 @@ CREATE SEQUENCE public.owned_items_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.owned_items_id_seq OWNER TO colinadler;
+ALTER TABLE public.owned_items_id_seq OWNER TO colin;
 
 --
--- Name: owned_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colinadler
+-- Name: owned_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: colin
 --
 
 ALTER SEQUENCE public.owned_items_id_seq OWNED BY public.owned_items.id;
 
 
 --
--- Name: blacklist id; Type: DEFAULT; Schema: public; Owner: colinadler
+-- Name: blacklist id; Type: DEFAULT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.blacklist ALTER COLUMN id SET DEFAULT nextval('public.blacklist_id_seq'::regclass);
 
 
 --
--- Name: easter_eggs id; Type: DEFAULT; Schema: public; Owner: colinadler
+-- Name: easter_eggs id; Type: DEFAULT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.easter_eggs ALTER COLUMN id SET DEFAULT nextval('public.easter_eggs_id_seq'::regclass);
 
 
 --
--- Name: guild_rankings id; Type: DEFAULT; Schema: public; Owner: colinadler
+-- Name: fish id; Type: DEFAULT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.fish ALTER COLUMN id SET DEFAULT nextval('public.fish_id_seq'::regclass);
+
+
+--
+-- Name: garbage id; Type: DEFAULT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.garbage ALTER COLUMN id SET DEFAULT nextval('public.garbage_id_seq'::regclass);
+
+
+--
+-- Name: guild_rankings id; Type: DEFAULT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.guild_rankings ALTER COLUMN id SET DEFAULT nextval('public.guild_rankings_id_seq'::regclass);
 
 
 --
--- Name: owned_items id; Type: DEFAULT; Schema: public; Owner: colinadler
+-- Name: items id; Type: DEFAULT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
+
+
+--
+-- Name: owned_items id; Type: DEFAULT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.owned_items ALTER COLUMN id SET DEFAULT nextval('public.owned_items_id_seq'::regclass);
 
 
 --
--- Data for Name: bait_inventory; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: bait_inventory; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.bait_inventory ("user", tier_1, tier_2, tier_3, tier_4, tier_5, current, gathering) FROM stdin;
@@ -379,7 +526,7 @@ COPY public.bait_inventory ("user", tier_1, tier_2, tier_3, tier_4, tier_5, curr
 
 
 --
--- Data for Name: blacklist; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: blacklist; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.blacklist (id, "user") FROM stdin;
@@ -388,7 +535,7 @@ COPY public.blacklist (id, "user") FROM stdin;
 
 
 --
--- Data for Name: easter_eggs; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: easter_eggs; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.easter_eggs (id, "user", easter_egg, amt) FROM stdin;
@@ -396,7 +543,7 @@ COPY public.easter_eggs (id, "user", easter_egg, amt) FROM stdin;
 
 
 --
--- Data for Name: equipped_items; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: equipped_items; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.equipped_items ("user", bait, rod, hook, vehicle, bait_box) FROM stdin;
@@ -404,7 +551,23 @@ COPY public.equipped_items ("user", bait, rod, hook, vehicle, bait_box) FROM std
 
 
 --
--- Data for Name: global_rankings; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: fish; Type: TABLE DATA; Schema: public; Owner: colin
+--
+
+COPY public.fish (id, low, high, "time", pun, image, location, tier) FROM stdin;
+\.
+
+
+--
+-- Data for Name: garbage; Type: TABLE DATA; Schema: public; Owner: colin
+--
+
+COPY public.garbage (id, text, "user") FROM stdin;
+\.
+
+
+--
+-- Data for Name: global_rankings; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.global_rankings ("user", score, garbage, fish, avg_length, casts) FROM stdin;
@@ -412,7 +575,7 @@ COPY public.global_rankings ("user", score, garbage, fish, avg_length, casts) FR
 
 
 --
--- Data for Name: guild_rankings; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: guild_rankings; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.guild_rankings (id, "user", guild, score, garbage, fish, casts, avg_length) FROM stdin;
@@ -500,7 +663,7 @@ COPY public.guild_rankings (id, "user", guild, score, garbage, fish, casts, avg_
 
 
 --
--- Data for Name: inventory; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: inventory; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.inventory ("user", fish, garbage, legendary, worth) FROM stdin;
@@ -508,7 +671,15 @@ COPY public.inventory ("user", fish, garbage, legendary, worth) FROM stdin;
 
 
 --
--- Data for Name: location_density; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: colin
+--
+
+COPY public.items (id, type, tier, price, effect, description) FROM stdin;
+\.
+
+
+--
+-- Data for Name: location_density; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.location_density ("user", lake, river, ocean, location) FROM stdin;
@@ -516,7 +687,7 @@ COPY public.location_density ("user", lake, river, ocean, location) FROM stdin;
 
 
 --
--- Data for Name: owned_items; Type: TABLE DATA; Schema: public; Owner: colinadler
+-- Data for Name: owned_items; Type: TABLE DATA; Schema: public; Owner: colin
 --
 
 COPY public.owned_items ("user", item, tier, id) FROM stdin;
@@ -527,49 +698,70 @@ COPY public.owned_items ("user", item, tier, id) FROM stdin;
 
 
 --
--- Name: bait_inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: bait_inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.bait_inventory_id_seq', 1, false);
 
 
 --
--- Name: blacklist_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: blacklist_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.blacklist_id_seq', 7, true);
 
 
 --
--- Name: easter_eggs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: easter_eggs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.easter_eggs_id_seq', 1, false);
 
 
 --
--- Name: global_rankings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: fish_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
+--
+
+SELECT pg_catalog.setval('public.fish_id_seq', 1, false);
+
+
+--
+-- Name: garbage_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
+--
+
+SELECT pg_catalog.setval('public.garbage_id_seq', 1, false);
+
+
+--
+-- Name: global_rankings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.global_rankings_id_seq', 1, false);
 
 
 --
--- Name: guild_rankings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: guild_rankings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.guild_rankings_id_seq', 80, true);
 
 
 --
--- Name: owned_items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colinadler
+-- Name: items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
+--
+
+SELECT pg_catalog.setval('public.items_id_seq', 1, false);
+
+
+--
+-- Name: owned_items_id_seq; Type: SEQUENCE SET; Schema: public; Owner: colin
 --
 
 SELECT pg_catalog.setval('public.owned_items_id_seq', 5, true);
 
 
 --
--- Name: inventory bait_inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: inventory bait_inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.inventory
@@ -577,7 +769,7 @@ ALTER TABLE ONLY public.inventory
 
 
 --
--- Name: blacklist blacklist_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: blacklist blacklist_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.blacklist
@@ -585,7 +777,7 @@ ALTER TABLE ONLY public.blacklist
 
 
 --
--- Name: easter_eggs easter_eggs_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: easter_eggs easter_eggs_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.easter_eggs
@@ -593,7 +785,7 @@ ALTER TABLE ONLY public.easter_eggs
 
 
 --
--- Name: equipped_items equipped_items_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: equipped_items equipped_items_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.equipped_items
@@ -601,7 +793,23 @@ ALTER TABLE ONLY public.equipped_items
 
 
 --
--- Name: global_rankings global_rankings_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: fish fish_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.fish
+    ADD CONSTRAINT fish_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: garbage garbage_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.garbage
+    ADD CONSTRAINT garbage_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: global_rankings global_rankings_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.global_rankings
@@ -609,7 +817,7 @@ ALTER TABLE ONLY public.global_rankings
 
 
 --
--- Name: guild_rankings guild_rankings_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: guild_rankings guild_rankings_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.guild_rankings
@@ -617,7 +825,7 @@ ALTER TABLE ONLY public.guild_rankings
 
 
 --
--- Name: bait_inventory inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: bait_inventory inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.bait_inventory
@@ -625,7 +833,15 @@ ALTER TABLE ONLY public.bait_inventory
 
 
 --
--- Name: location_density location_density_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: items items_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: location_density location_density_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.location_density
@@ -633,7 +849,7 @@ ALTER TABLE ONLY public.location_density
 
 
 --
--- Name: owned_items owned_items_pkey; Type: CONSTRAINT; Schema: public; Owner: colinadler
+-- Name: owned_items owned_items_pkey; Type: CONSTRAINT; Schema: public; Owner: colin
 --
 
 ALTER TABLE ONLY public.owned_items
@@ -641,56 +857,56 @@ ALTER TABLE ONLY public.owned_items
 
 
 --
--- Name: user; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE UNIQUE INDEX "user" ON public.blacklist USING btree ("user");
 
 
 --
--- Name: user_easter_egg; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_easter_egg; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE UNIQUE INDEX user_easter_egg ON public.easter_eggs USING btree ("user", easter_egg);
 
 
 --
--- Name: user_guild; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_guild; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE UNIQUE INDEX user_guild ON public.guild_rankings USING btree ("user", guild);
 
 
 --
--- Name: user_guild_score; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_guild_score; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE INDEX user_guild_score ON public.guild_rankings USING btree ("user", guild, score);
 
 
 --
--- Name: user_index; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_index; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE INDEX user_index ON public.owned_items USING btree ("user");
 
 
 --
--- Name: user_item; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_item; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE INDEX user_item ON public.owned_items USING btree ("user", item);
 
 
 --
--- Name: user_item_tier; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_item_tier; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE UNIQUE INDEX user_item_tier ON public.owned_items USING btree ("user", item, tier);
 
 
 --
--- Name: user_score; Type: INDEX; Schema: public; Owner: colinadler
+-- Name: user_score; Type: INDEX; Schema: public; Owner: colin
 --
 
 CREATE INDEX user_score ON public.global_rankings USING btree ("user", score);

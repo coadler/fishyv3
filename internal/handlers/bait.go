@@ -79,7 +79,7 @@ func getBaitInv(ctx context.Context, db models.XODB, user string, failGathering 
 
 		if err := (&models.OwnedItem{
 			User: user,
-			Item: models.ItemBait,
+			Item: models.ItemtypeBait,
 			Tier: converter.FromPBBaitTier(pb.BaitTier_T1),
 		}).Save(db); err != nil {
 			return inv, liftDB(err, "failed to insert owned item")

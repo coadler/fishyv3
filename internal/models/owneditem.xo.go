@@ -9,10 +9,10 @@ import (
 
 // OwnedItem represents a row from 'public.owned_items'.
 type OwnedItem struct {
-	User string `json:"user"` // user
-	Item Item   `json:"item"` // item
-	Tier int    `json:"tier"` // tier
-	ID   int    `json:"id"`   // id
+	User string   `json:"user"` // user
+	Item Itemtype `json:"item"` // item
+	Tier int      `json:"tier"` // tier
+	ID   int      `json:"id"`   // id
 
 	// xo fields
 	_exists, _deleted bool
@@ -225,7 +225,7 @@ func OwnedItemsByUser(db XODB, user string) ([]*OwnedItem, error) {
 // OwnedItemsByUserItem retrieves a row from 'public.owned_items' as a OwnedItem.
 //
 // Generated from index 'user_item'.
-func OwnedItemsByUserItem(db XODB, user string, item Item) ([]*OwnedItem, error) {
+func OwnedItemsByUserItem(db XODB, user string, item Itemtype) ([]*OwnedItem, error) {
 	var err error
 
 	// sql query
@@ -264,7 +264,7 @@ func OwnedItemsByUserItem(db XODB, user string, item Item) ([]*OwnedItem, error)
 // OwnedItemByUserItemTier retrieves a row from 'public.owned_items' as a OwnedItem.
 //
 // Generated from index 'user_item_tier'.
-func OwnedItemByUserItemTier(db XODB, user string, item Item, tier int) (*OwnedItem, error) {
+func OwnedItemByUserItemTier(db XODB, user string, item Itemtype, tier int) (*OwnedItem, error) {
 	var err error
 
 	// sql query

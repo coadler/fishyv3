@@ -7,6 +7,8 @@ service Fishy {
 
     rpc Inventory(InventoryRequest) returns (InventoryResponse) {}
 
+    rpc Locations(LocationsRequest) returns (LocationsResponse) {}
+
     rpc GetLocation(GetLocationRequest) returns (GetLocationResponse) {}
 
     rpc SetLocation(SetLocationRequest) returns (SetLocationResponse) {}
@@ -77,6 +79,12 @@ message InventoryResponse {
     int32 max_fish = 3;
     int32 max_bait = 4;
     int32 user_tier = 5;
+}
+
+message LocationsRequest {}
+
+message LocationsResponse {
+    repeated Location locations = 1;
 }
 
 message GetLocationRequest {
@@ -201,7 +209,7 @@ message CheckTimeResponse {
 }
 
 message FishRequest {
-
+    string user = 1;
 }
 
 message FishResponse {
