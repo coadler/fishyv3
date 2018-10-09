@@ -31,20 +31,7 @@ func (s *FishyServerImpl) BuyBait(ctx context.Context, req *pb.BuyBaitRequest) (
 			return liftDB(err, "failed to get bait inventory")
 		}
 
-		amt := int(req.Amount)
-		switch req.Tier {
-		case pb.BaitTier_T1:
-			inv.Tier1 += amt
-		case pb.BaitTier_T2:
-			inv.Tier2 += amt
-		case pb.BaitTier_T3:
-			inv.Tier3 += amt
-		case pb.BaitTier_T4:
-			inv.Tier4 += amt
-		case pb.BaitTier_T5:
-			inv.Tier5 += amt
-		}
-
+		addBaitToPBTier(inv, req.Tier, int(req.Amount))
 		return liftDB(inv.Upsert(txn), "failed to upsert bait inventory")
 	})
 
